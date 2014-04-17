@@ -6,7 +6,20 @@
 
 	var colflow = {
 		init: function() {
+			$(document).bind('keydown', this.doEvent);
+		},
+		doEvent: function(event) {
+			var type = event.type;
 
+			switch (type) {
+				case 'keydown':
+					var which = event.which;
+					// up 38
+					// down 40
+					// right 39
+					// left 37
+					break;
+			}
 		}
 	};
 
