@@ -1,0 +1,162 @@
+@import 'icons.css';
+.tmp_reload {
+  position: absolute;
+  top: 15%;
+  left: 180px;
+  right: 180px;
+  background: rgba(0, 0, 0, 0.1);
+  padding: 20px 0px;
+  text-align: center;
+  text-decoration: none;
+  color: rgba(0, 0, 0, 0.7);
+  z-index: 99;
+}
+body {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.colflow {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+}
+.colflow * {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.colflow figure {
+  width: 16px;
+  height: 16px;
+  margin: 0px;
+  text-align: center;
+}
+.colflow .reel {
+  background: #fff;
+  display: table;
+  height: 100%;
+}
+.colflow .column {
+  position: relative;
+  display: table-cell;
+  min-width: 220px;
+  height: 100%;
+  border-right: #e0e0e0 1px solid;
+}
+.colflow .column .frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.colflow .column .frame:after {
+  content: '';
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  right: -2px;
+  width: 3px;
+  z-index: 3;
+  cursor: ew-resize;
+}
+.colflow .column .frame .content {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+.colflow .column .row {
+  position: relative;
+  display: block;
+  height: 22px;
+  margin: 1px 17px 0px 1px;
+  padding: 2px 0px 2px 7px;
+  border-radius: 12px;
+  cursor: default;
+}
+.colflow .column .row:after {
+  content: '.';
+  display: block;
+  clear: both;
+  visibility: hidden;
+  line-height: 0;
+  height: 0;
+}
+.colflow .column .row:active,
+.colflow .column .row.active {
+  background: #3775d7;
+  color: #fff;
+}
+.colflow .column .row:active figure.icon-folder:before,
+.colflow .column .row.active figure.icon-folder:before {
+  content: "\f07c";
+}
+.colflow .column .row figure {
+  float: left;
+  margin: 1px 3px 1px 0px;
+}
+.colflow .column .row figure.icon-folder:after {
+  content: '';
+  position: absolute;
+  top: 7px;
+  right: -13px;
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-left: 6px solid #ccc;
+  border-bottom: 5px solid transparent;
+}
+.colflow .column .row span {
+  display: block;
+  height: 20px;
+}
+.colflow .file-preview {
+  background: rgba(0, 0, 0, 0.1);
+  margin: 5px;
+  height: 67%;
+}
+.colflow .file-details {
+  position: relative;
+  margin: 10px 0px 0px 0px;
+  padding: 10px 0px 0px 0px;
+  color: #999;
+  text-align: right;
+  font-size: 12px;
+}
+.colflow .file-details:before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 0px;
+  right: 0px;
+  height: 1px;
+  background: #ddd;
+  background: -moz-linear-gradient(left, #ffffff 0%, #dddddd 50%, #ffffff 100%);
+}
+.colflow .file-details .detail-row {
+  padding: 0px 0px 2px 0px;
+}
+.colflow .file-details .detail-row:after {
+  content: '.';
+  display: block;
+  clear: both;
+  visibility: hidden;
+  line-height: 0;
+  height: 0;
+}
+.colflow .file-details .detail-row span {
+  float: right;
+  width: 60%;
+  color: #444;
+  font-weight: 600;
+  text-align: left;
+  padding-left: 5px;
+}
+/*
+ * Mixins
+ */

@@ -1,0 +1,46 @@
+@font-face {
+	font-family: 'colflow';
+	src:url('../fonts/colflow.eot?-96rjxa');
+	src:url('../fonts/colflow.eot?#iefix-96rjxa') format('embedded-opentype'),
+		url('../fonts/colflow.woff?-96rjxa') format('woff'),
+		url('../fonts/colflow.ttf?-96rjxa') format('truetype'),
+		url('../fonts/colflow.svg?-96rjxa#colflow') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+	font-family: 'colflow';
+	speak: none;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	font-size: 14px;
+	line-height: 1;
+
+	/* Better Font Rendering =========== */
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+[class^="icon-"]:before, [class*=" icon-"]:before {
+	position: relative;
+}
+
+.icon-film:before          { content: "\f008"; }
+.icon-trash-o:before       { content: "\f014"; }
+.icon-home:before          { content: "\f015"; }
+.icon-file-o:before        { content: "\f016"; font-size: 16px; }
+.icon-refresh:before       { content: "\f021"; }
+.icon-tag:before           { content: "\f02b"; }
+.icon-tags:before          { content: "\f02c"; }
+.icon-book:before          { content: "\f02d"; }
+.icon-picture-o:before     { content: "\f03e"; top: 1px; }
+.icon-chevron-left:before  { content: "\f053"; }
+.icon-chevron-right:before { content: "\f054"; }
+.icon-chevron-up:before    { content: "\f077"; }
+.icon-chevron-down:before  { content: "\f078"; }
+.icon-folder:before        { content: "\f07b"; font-size: 15px; top: 1px; }
+.icon-folder-open:before   { content: "\f07c"; font-size: 15px; top: 1px;}
+.icon-file-text-o:before   { content: "\f0f6"; font-size: 16px; }
