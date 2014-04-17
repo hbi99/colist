@@ -1,9 +1,9 @@
 @import 'icons.css';
 .tmp_reload {
   position: absolute;
-  top: 15%;
+  top: 85%;
   left: 180px;
-  right: 180px;
+  width: 180px;
   background: rgba(0, 0, 0, 0.1);
   padding: 20px 0px;
   text-align: center;
@@ -27,6 +27,9 @@ body {
   -moz-box-sizing: border-box;
   -o-box-sizing: border-box;
   box-sizing: border-box;
+}
+.colflow .hideMe {
+  display: none;
 }
 .colflow figure {
   width: 16px;
@@ -59,7 +62,7 @@ body {
   right: -2px;
   width: 3px;
   z-index: 3;
-  cursor: ew-resize;
+  cursor: col-resize;
 }
 .colflow .column .frame .content {
   position: absolute;
@@ -75,7 +78,7 @@ body {
   display: block;
   height: 22px;
   margin: 1px 17px 0px 1px;
-  padding: 2px 0px 2px 7px;
+  padding: 2px 11px 2px 7px;
   border-radius: 12px;
   cursor: default;
 }
@@ -104,7 +107,7 @@ body {
   content: '';
   position: absolute;
   top: 7px;
-  right: -13px;
+  right: -11px;
   width: 0;
   height: 0;
   border-top: 5px solid transparent;
@@ -114,11 +117,74 @@ body {
 .colflow .column .row span {
   display: block;
   height: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .colflow .file-preview {
-  background: rgba(0, 0, 0, 0.1);
-  margin: 5px;
+  position: relative;
+  margin: 11px;
   height: 67%;
+}
+.colflow .file-preview .file-text {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  margin: 0px 0px 1px 0px;
+  overflow: scroll;
+  border: #ddd 1px solid;
+  border-radius: 2px;
+}
+.colflow .file-preview .file-image {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  background-size: 100%;
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+}
+.colflow .file-preview .file-generic {
+  position: relative;
+  top: 25%;
+  background: #e5e5e5;
+  border-radius: 2px;
+  margin: 0px auto;
+  width: 53%;
+  max-width: 140px;
+}
+.colflow .file-preview .file-generic:before {
+  content: '';
+  display: block;
+  padding-top: 133%;
+  line-height: 0px;
+}
+.colflow .file-preview .file-generic:after {
+  border-top: 29px solid #fff;
+  border-left: 29px solid rgba(0, 0, 0, 0.1);
+  content: '';
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  width: 0px;
+  height: 0px;
+}
+.colflow .file-preview .file-generic .file-extension {
+  background: #ddd;
+  position: absolute;
+  right: -10px;
+  bottom: 13px;
+  box-shadow: 0px 0px 3px #fff,
+							0px 0px 11px #fff;
+  border-radius: 1px;
+  font-weight: 600;
+  text-align: center;
+  text-transform: uppercase;
+  padding: 1px 10px 1px;
+  color: #fff;
 }
 .colflow .file-details {
   position: relative;
@@ -135,8 +201,10 @@ body {
   left: 0px;
   right: 0px;
   height: 1px;
+  z-index: 3;
   background: #ddd;
   background: -moz-linear-gradient(left, #ffffff 0%, #dddddd 50%, #ffffff 100%);
+  background: -webkit-linear-gradient(left, #ffffff 0%, #dddddd 50%, #ffffff 100%);
 }
 .colflow .file-details .detail-row {
   padding: 0px 0px 2px 0px;
