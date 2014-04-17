@@ -16,6 +16,7 @@ wp_enqueue_script( array( "colist-admin_script" ) );
 
 		<div class="column">
 			<div class="frame">
+				<div class="resize"></div>
 				<div class="content">
 					<div class="row"><figure class="icon-folder"></figure><span>Folder 2</span></div>
 					<div class="row"><figure class="icon-folder"></figure><span>Folder 2</span></div>
@@ -29,6 +30,7 @@ wp_enqueue_script( array( "colist-admin_script" ) );
 
 		<div class="column">
 			<div class="frame">
+				<div class="resize"></div>
 				<div class="content">
 					<div class="row active"><span class="processing"></span><figure class="icon-folder"></figure><span>Folder Folder Folder Folder </span></div>
 					<div class="row"><span class="processing"></span><figure class="icon-folder"></figure><span>Folder 2</span></div>
@@ -42,15 +44,21 @@ wp_enqueue_script( array( "colist-admin_script" ) );
 
 		<div class="column active">
 			<div class="frame">
+				<div class="resize"></div>
 				<div class="content">
 					<div class="row"><figure class="icon-picture-o"></figure><span>Image 1.png</span></div>
 					<div class="row active"><span class="processing"></span><figure class="icon-picture-o"></figure><span>Image 2.png</span></div>
+					<div class="row"><figure class="icon-picture-o"></figure><span>Image 1.png</span></div>
+					<div class="row"><figure class="icon-picture-o"></figure><span>Image 1.png</span></div>
+					<div class="row"><figure class="icon-picture-o"></figure><span>Image 1.png</span></div>
+					<div class="row"><figure class="icon-picture-o"></figure><span>Image 1.png</span></div>
 				</div>
 			</div>
 		</div>
 
 		<div class="column">
 			<div class="frame">
+				<div class="resize"></div>
 				<div class="content">
 					
 					<div class="file-preview">
