@@ -15,46 +15,50 @@ body {
   overflow-x: auto;
   overflow-y: hidden;
 }
-.colflow {
+.colist {
   position: absolute;
   top: 0px;
   left: 0px;
   width: 100%;
   height: 100%;
 }
-.colflow * {
+.colist * {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   -o-box-sizing: border-box;
   box-sizing: border-box;
 }
-.colflow .hideMe {
+.colist .hideMe {
   display: none;
 }
-.colflow figure {
+.colist figure {
   width: 16px;
   height: 16px;
   margin: 0px;
   text-align: center;
 }
-.colflow .reel {
+.colist .reel {
   background: #fff;
   display: table;
   height: 100%;
 }
-.colflow .column {
+.colist .column {
   position: relative;
   display: table-cell;
   min-width: 220px;
   height: 100%;
   border-right: #e0e0e0 1px solid;
 }
-.colflow .column .frame {
+.colist .column.active .row.active {
+  background: #3775d7;
+  color: #fff;
+}
+.colist .column .frame {
   position: relative;
   width: 100%;
   height: 100%;
 }
-.colflow .column .frame:after {
+.colist .column .frame:after {
   content: '';
   position: absolute;
   top: 0px;
@@ -64,7 +68,7 @@ body {
   z-index: 3;
   cursor: col-resize;
 }
-.colflow .column .frame .content {
+.colist .column .frame .content {
   position: absolute;
   top: 0px;
   left: 0px;
@@ -73,16 +77,16 @@ body {
   overflow-x: hidden;
   overflow-y: scroll;
 }
-.colflow .column .row {
+.colist .column .row {
   position: relative;
   display: block;
-  height: 22px;
+  height: 21px;
   margin: 1px 17px 0px 1px;
   padding: 2px 11px 2px 7px;
   border-radius: 12px;
   cursor: default;
 }
-.colflow .column .row:after {
+.colist .column .row:after {
   content: '.';
   display: block;
   clear: both;
@@ -90,20 +94,19 @@ body {
   line-height: 0;
   height: 0;
 }
-.colflow .column .row:active,
-.colflow .column .row.active {
-  background: #3775d7;
-  color: #fff;
+.colist .column .row:active,
+.colist .column .row.active {
+  background: #d4d4d4;
 }
-.colflow .column .row:active figure.icon-folder:before,
-.colflow .column .row.active figure.icon-folder:before {
+.colist .column .row:active figure.icon-folder:before,
+.colist .column .row.active figure.icon-folder:before {
   content: "\f07c";
 }
-.colflow .column .row figure {
+.colist .column .row figure {
   float: left;
   margin: 1px 3px 1px 0px;
 }
-.colflow .column .row figure.icon-folder:after {
+.colist .column .row figure.icon-folder:after {
   content: '';
   position: absolute;
   top: 7px;
@@ -114,19 +117,41 @@ body {
   border-left: 6px solid #ccc;
   border-bottom: 5px solid transparent;
 }
-.colflow .column .row span {
+.colist .column .row span {
   display: block;
   height: 20px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.colflow .file-preview {
+.colist .column .row span.processing {
+  background: rgba(0, 0, 0, 0.15);
+  float: right;
+  position: relative;
+  top: 4px;
+  left: 3px;
+  width: 60px;
+  height: 9px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 5px;
+}
+.colist .column .row span.processing:after {
+  content: '';
+  background: #fff;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  bottom: 0px;
+  width: 37%;
+  border-radius: 4px 0px 0px 4px;
+}
+.colist .file-preview {
   position: relative;
   margin: 11px;
   height: 67%;
 }
-.colflow .file-preview .file-text {
+.colist .file-preview .file-text {
   position: absolute;
   top: 0px;
   left: 0px;
@@ -137,7 +162,7 @@ body {
   border: #ddd 1px solid;
   border-radius: 2px;
 }
-.colflow .file-preview .file-image {
+.colist .file-preview .file-image {
   position: absolute;
   top: 0px;
   left: 0px;
@@ -147,7 +172,7 @@ body {
   background-repeat: no-repeat;
   background-position: 50% 50%;
 }
-.colflow .file-preview .file-generic {
+.colist .file-preview .file-generic {
   position: relative;
   top: 25%;
   background: #e5e5e5;
@@ -156,13 +181,13 @@ body {
   width: 53%;
   max-width: 140px;
 }
-.colflow .file-preview .file-generic:before {
+.colist .file-preview .file-generic:before {
   content: '';
   display: block;
   padding-top: 133%;
   line-height: 0px;
 }
-.colflow .file-preview .file-generic:after {
+.colist .file-preview .file-generic:after {
   border-top: 29px solid #fff;
   border-left: 29px solid rgba(0, 0, 0, 0.1);
   content: '';
@@ -172,7 +197,7 @@ body {
   width: 0px;
   height: 0px;
 }
-.colflow .file-preview .file-generic .file-extension {
+.colist .file-preview .file-generic .file-extension {
   background: #ddd;
   position: absolute;
   right: -10px;
@@ -186,7 +211,7 @@ body {
   padding: 1px 10px 1px;
   color: #fff;
 }
-.colflow .file-details {
+.colist .file-details {
   position: relative;
   margin: 10px 0px 0px 0px;
   padding: 10px 0px 0px 0px;
@@ -194,22 +219,22 @@ body {
   text-align: right;
   font-size: 12px;
 }
-.colflow .file-details:before {
+.colist .file-details:before {
   content: '';
   position: absolute;
   top: -1px;
-  left: 0px;
-  right: 0px;
+  left: 17px;
+  right: 17px;
   height: 1px;
   z-index: 3;
   background: #ddd;
   background: -moz-linear-gradient(left, #ffffff 0%, #dddddd 50%, #ffffff 100%);
   background: -webkit-linear-gradient(left, #ffffff 0%, #dddddd 50%, #ffffff 100%);
 }
-.colflow .file-details .detail-row {
+.colist .file-details .detail-row {
   padding: 0px 0px 2px 0px;
 }
-.colflow .file-details .detail-row:after {
+.colist .file-details .detail-row:after {
   content: '.';
   display: block;
   clear: both;
@@ -217,7 +242,7 @@ body {
   line-height: 0;
   height: 0;
 }
-.colflow .file-details .detail-row span {
+.colist .file-details .detail-row span {
   float: right;
   width: 60%;
   color: #444;

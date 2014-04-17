@@ -4,7 +4,7 @@
 (function(root, document, $) {
 	'use strict';
 
-	var colflow = {
+	var colist = {
 		init: function() {
 			$(document).bind('keydown', this.doEvent);
 		},
@@ -23,10 +23,10 @@
 		}
 	};
 
-	root.colflow = colflow;
+	root.colist = colist;
 
 	$(document).ready(function() {
-		colflow.init();
+		colist.init();
 	});
 
 })(window, document, jQuery);

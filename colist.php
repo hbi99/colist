@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: ColFlow
+ * Plugin Name: Colist
  * Plugin URI: 
  * Description: 
  * Version: 0.0.1
@@ -9,18 +9,18 @@
  * License: GPLv2 or later
  */
 
-class ColFlow {
+class Colist {
 
 	function __construct( ) {
 		//******** settings
 		$this->settings = array(
-			'ns'      => 'ColFlow',
-			'version' => '0.0.1',
+			'ns'      => 'Colist',
+			'version' => '0.1',
 			'path'    => plugin_dir_url( __FILE__ ),
 			'dir'     => plugin_dir_path( __FILE__ )
 		);
 		//******** ajax
-		//add_action( 'wp_ajax_colflow/do_ajax', array( $this, 'do_ajax' ) );
+		//add_action( 'wp_ajax_colist/do_ajax', array( $this, 'do_ajax' ) );
 		
 		add_action( 'init', array( $this, 'Init' ), 1 );
 	}
@@ -32,8 +32,8 @@ class ColFlow {
 	function Init( ) {
 		//******** scripts
 		$this->scripts = array(
-			array(  'handle' => 'colflow-admin_script',
-					'src'    => $this->settings['path'] . 'js/colflow.js',
+			array(  'handle' => 'colist-admin_script',
+					'src'    => $this->settings['path'] . 'js/colist.js',
 					'deps'   => array( 'jquery' )
 			),
 		);
@@ -44,13 +44,13 @@ class ColFlow {
 		//******** ajax nonce
 		$nonce = array(
 			'ajax_path'  => admin_url( 'admin-ajax.php' ),
-			'ajax_nonce' => esc_js( wp_create_nonce( 'colflow_nonce') ),
+			'ajax_nonce' => esc_js( wp_create_nonce( 'colist_nonce') ),
 		);
-		wp_localize_script( 'colflow-admin_script',  'colflow_cfg', $nonce );
+		wp_localize_script( 'colist-admin_script',  'colist_cfg', $nonce );
 
 		//******** styles
 		$this->styles = array(
-			'colflow-admin_style' => $this->settings['path'] . 'css/colflow.css',
+			'colist-admin_style' => $this->settings['path'] . 'css/colist.css',
 		);
 		foreach( $this->styles as $handle => $src ) {
 			wp_register_style( $handle, $src, false, $this->settings['version'] );
@@ -61,12 +61,12 @@ class ColFlow {
 			add_filter( 'media_upload_tabs', array( $this, 'Add_Tab' ) );
 			
 			//******** actions
-			add_action( 'media_upload_colflowframe', array( $this, 'Add_Iframe' ) );
+			add_action( 'media_upload_colistframe', array( $this, 'Add_Iframe' ) );
 		}
 	}
 
 	function Add_Tab( $tabs ) {
-		$new_tab = array( 'colflowframe' => 'ColFlow' );
+		$new_tab = array( 'colistframe' => 'Colist' );
         return array_merge( $tabs, $new_tab );
 	}
 
@@ -80,15 +80,15 @@ class ColFlow {
 
 }
 
-function colflow() {
-	global $colflow;
-	if ( !isset( $colflow ) ) {
-		$colflow = new ColFlow();
+function colist() {
+	global $colist;
+	if ( !isset( $colist ) ) {
+		$colist = new Colist();
 	}
-	return $colflow;
+	return $colist;
 }
 
 // initialize
-colflow();
+colist();
 
 ?>
