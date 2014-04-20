@@ -42,5 +42,5 @@
 .icon-chevron-up:before    { content: "\f077"; }
 .icon-chevron-down:before  { content: "\f078"; }
 .icon-folder:before        { content: "\f07b"; font-size: 15px; }
-.icon-folder-open:before   { content: "\f07c"; font-size: 15px; }
+.icon-folder-open:before   { content: "\f07c"; left: 1px; font-size: 14px; }
 .icon-file-text-o:before   { content: "\f0f6"; top: -1px; font-size: 17px; }

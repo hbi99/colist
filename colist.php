@@ -61,7 +61,7 @@ class Colist {
 			wp_localize_script( 'colist-admin_script',  'colist_cfg', $nonce );
 
 			//******** ajax
-			add_action( 'wp_ajax_colist/get_children', array( $this, 'Get_Children' ) );
+			add_action( 'wp_ajax_colist/get_folder_list', array( $this, 'Get_Folder_List' ) );
 
 			//******** filters
 			add_filter( 'media_upload_tabs', array( $this, 'Add_Tab' ), 10, 1 );
@@ -84,7 +84,7 @@ class Colist {
         include_once( 'views/index.php' );
 	}
 
-	function Get_Children() {
+	function Get_Folder_List() {
 		// set content type
 		header('Content-type: application/json');
 		// check nonce
@@ -93,7 +93,8 @@ class Colist {
 		// prepare response
 		$res = array();
 
-		$imgs_arr = array( 'png', 'jpg', 'jpeg', 'gif' );
+		$ignore_arr = array( '.', '..', '.DS_Store' );
+		$images_arr = array( 'png', 'jpg', 'jpeg', 'gif' );
 
 		// set path
 		$path = isset( $_REQUEST['path'] )? $_REQUEST['path'] : '';
@@ -101,23 +102,29 @@ class Colist {
 		// get directory listing
 		$handle = opendir( $path );
 		while ( false !== ( $item = readdir( $handle ) ) ) {
-			if ( $item == '.' || $item == '..' ) continue;
+			if ( in_array( $item, $ignore_arr ) ) continue;
 			$item_path = $path . $item;
+			$is_dir = is_dir( $item_path );
 			$ofile = array(
+				'@id'        => $_REQUEST['path'] .'/'. $item,
 				'@name'      => $item,
-				'@extension' => is_dir( $item_path )? '_dir' : pathinfo( $item, PATHINFO_EXTENSION ),
-				'@size'      => filesize( $item_path ),
-				'@modified'  => filemtime( $item_path ),
+				'@extension' => $is_dir ? '_dir' : strtolower( pathinfo( $item, PATHINFO_EXTENSION ) ),
+				'@size'      => round( filesize( $item_path ) / 1024),
+				'@modified'  => date ( 'Y-m-d H:i', filemtime( $item_path ) ),
 			);
-			if ( in_array( $ofile['@extension'], $imgs_arr ) ) {
-				list( $ofile['width'], $ofile['height'] ) = getimagesize( $item_path );
+			if ( !$is_dir ) {
+				$ofile['@path'] = str_replace( $_SERVER['DOCUMENT_ROOT'], '', str_replace( './', '', $item_path) );
+			}
+			if ( in_array( $ofile['@extension'], $images_arr ) ) {
+				list( $ofile['@width'], $ofile['@height'] ) = getimagesize( $item_path );
 			}
 			array_push( $res, $ofile );
 		}
 		// output response
 		echo json_encode( array(
-			'@path' => $_REQUEST['path'],
-			'file' => $res
+			'@id'   => $_REQUEST['path'],
+			'@name' => basename( $path ),
+			'file'  => $res
 		) );
 		// exit properly - ajax call
 		die( 1 );
