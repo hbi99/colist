@@ -28,19 +28,29 @@
 	position: relative;
 }
 
+.icon-file-o:before        { top: -1px; font-size: 17px; }
+.icon-folder:before        { font-size: 15px; }
+.icon-folder-open:before   { left: 1px; font-size: 14px; }
+.icon-file-text-o:before   { top: -1px; font-size: 17px; }
+.icon-search:before        { top: -1px; font-size: 14px; }
+.icon-globe:before         { top: -1px; font-size: 15px; }
+
+
+.icon-search:before        { content: "\f002"; }
 .icon-film:before          { content: "\f008"; }
+.icon-check:before         { content: "\f00c"; }
+.icon-times:before         { content: "\f00d"; }
+.icon-gear:before          { content: "\f013"; }
 .icon-trash-o:before       { content: "\f014"; }
-.icon-home:before          { content: "\f015"; }
-.icon-file-o:before        { content: "\f016"; top: -1px; font-size: 17px; }
-.icon-refresh:before       { content: "\f021"; }
+.icon-file-o:before        { content: "\f016"; }
 .icon-tag:before           { content: "\f02b"; }
 .icon-tags:before          { content: "\f02c"; }
-.icon-book:before          { content: "\f02d"; }
 .icon-picture-o:before     { content: "\f03e"; }
-.icon-chevron-left:before  { content: "\f053"; }
-.icon-chevron-right:before { content: "\f054"; }
-.icon-chevron-up:before    { content: "\f077"; }
-.icon-chevron-down:before  { content: "\f078"; }
-.icon-folder:before        { content: "\f07b"; font-size: 15px; }
-.icon-folder-open:before   { content: "\f07c"; left: 1px; font-size: 14px; }
-.icon-file-text-o:before   { content: "\f0f6"; top: -1px; font-size: 17px; }
+.icon-folder:before        { content: "\f07b"; }
+.icon-folder-open:before   { content: "\f07c"; }
+.icon-globe:before         { content: "\f0ac"; }
+.icon-filter:before        { content: "\f0b0"; }
+.icon-rotate-left:before   { content: "\f0e2"; }
+.icon-sitemap:before       { content: "\f0e8"; }
+.icon-cloud-upload:before  { content: "\f0ee"; }
+.icon-file-text-o:before   { content: "\f0f6"; }

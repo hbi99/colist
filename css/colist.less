@@ -1,16 +1,5 @@
 
-.tmp_reload {
-	position: absolute;
-	top: 92%;
-	left: 180px;
-	width: 130px;
-	background: rgba(0,0,0,0.1);
-	padding: 10px 0px;
-	text-align: center;
-	text-decoration: none;
-	color: rgba(0,0,0,0.7);
-	z-index: 99;
-}
+// What can I say...I just like primenumbers :)
 
 @import 'icons.css';
 
@@ -62,6 +51,7 @@ body {
 		height: 100%;
 		border-right: #e0e0e0 1px solid;
 		z-index: 2;
+		.no-select;
 
 		&.active {
 			.row.active {
@@ -103,7 +93,7 @@ body {
 				overflow-y: scroll;
 			}
 		}
-
+ 
 		.folder_empty {
 			margin-left: -3px;
 			padding: 10px;
@@ -118,6 +108,15 @@ body {
 			-webkit-animation: 2s fadeOut 300ms ease-in-out forwards;
 			-moz-animation: 2s fadeOut 300ms ease-in-out forwards;
 		}
+		.divider {
+			margin: 5px auto;
+			width: 160px;
+			height: 1px;
+			z-index: 3;
+			background: #ddd;
+			background: -moz-linear-gradient(left, #fff 0%, #ddd 50%, #fff 100%);
+			background: -webkit-linear-gradient(left, #fff 0%, #ddd 50%, #fff 100%);
+		}
 
 		.row {
 			//background: rgba(0,0,0,0.1);
@@ -125,7 +124,7 @@ body {
 			display: block;
 			height: 21px;
 			margin: 1px 17px 0px 1px;
-			padding: 2px 11px 2px 7px;
+			padding: 2px 7px 2px 7px;
 			border-radius: 12px;
 			cursor: default;
 
@@ -151,18 +150,18 @@ body {
 			figure {
 				float: left;
 				margin: 1px 5px 1px 0px;
-
-				&.icon-folder:after {
-					content: '';
-					position: absolute;
-					top: 6px;
-					right: -11px;
-					width: 0;
-					height: 0;
-					border-top: 5px solid transparent;
-					border-left: 6px solid #ccc;
-					border-bottom: 5px solid transparent;
-				}
+			}
+			&.hasChildren figure:after,
+			figure.icon-folder:after {
+				content: '';
+				position: absolute;
+				top: 6px;
+				right: -11px;
+				width: 0;
+				height: 0;
+				border-top: 5px solid transparent;
+				border-left: 6px solid #ccc;
+				border-bottom: 5px solid transparent;
 			}
 			span {
 				display: block;
@@ -170,6 +169,11 @@ body {
 				white-space: nowrap;
 				overflow: hidden;
 				text-overflow: ellipsis;
+
+				&.filename {
+					position: relative;
+					top: -1px;
+				}
 			}
 			span.processing {
 				background: rgba(0,0,0,0.15);
@@ -378,37 +382,41 @@ body {
 	-o-transform-origin:      @value;
 	transform-origin:         @value;
 }
-.delay (@duration: 400ms) {
+.delay ( @duration: 400ms ) {
 	transition-delay:         @duration;
 	-webkit-transition-delay: @duration;
 	-moz-transition-delay:    @duration;
 	-ms-transition-delay:     @duration;
 }
-.transition (@duration: 400ms) {
+.transition ( @duration: 400ms ) {
 	transition:         all @duration ease-in-out;
 	-webkit-transition: all @duration ease-in-out;
 	-moz-transition:    all @duration ease-in-out;
 	-ms-transition:     all @duration ease-in-out;
 }
-.transitionWhat (@what: all, @duration: 400ms) {
+.transitionWhat ( @what: all, @duration: 400ms ) {
 	transition:         @what @duration ease-in-out;
 	-webkit-transition: @what @duration ease-in-out;
 	-moz-transition:    @what @duration ease-in-out;
 	-ms-transition:     @what @duration ease-in-out;
 }
-.select(@val) {
+.select ( @val ) {
 	user-select:         @val;
 	-webkit-user-select: @val;
 	-moz-user-select:    @val;
 	-ms-user-select:     @val;
 }
-.transform (@val) {
+.transform ( @val ) {
 	transform:         @val;
 	-webkit-transform: @val;
 	-moz-transform:    @val;
 	-ms-transform:     @val;
 }
-
+.no-select () {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+}
 
 /*
  * Keyframes

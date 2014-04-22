@@ -1,16 +1,4 @@
 @import 'icons.css';
-.tmp_reload {
-  position: absolute;
-  top: 92%;
-  left: 180px;
-  width: 130px;
-  background: rgba(0, 0, 0, 0.1);
-  padding: 10px 0px;
-  text-align: center;
-  text-decoration: none;
-  color: rgba(0, 0, 0, 0.7);
-  z-index: 99;
-}
 body {
   overflow-x: auto;
   overflow-y: hidden;
@@ -54,6 +42,9 @@ body {
   height: 100%;
   border-right: #e0e0e0 1px solid;
   z-index: 2;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 .colist .column.active .row.active {
   background: #3775d7;
@@ -98,12 +89,21 @@ body {
   -webkit-animation: 2s fadeOut 300ms ease-in-out forwards;
   -moz-animation: 2s fadeOut 300ms ease-in-out forwards;
 }
+.colist .column .divider {
+  margin: 5px auto;
+  width: 160px;
+  height: 1px;
+  z-index: 3;
+  background: #ddd;
+  background: -moz-linear-gradient(left, #ffffff 0%, #dddddd 50%, #ffffff 100%);
+  background: -webkit-linear-gradient(left, #ffffff 0%, #dddddd 50%, #ffffff 100%);
+}
 .colist .column .row {
   position: relative;
   display: block;
   height: 21px;
   margin: 1px 17px 0px 1px;
-  padding: 2px 11px 2px 7px;
+  padding: 2px 7px 2px 7px;
   border-radius: 12px;
   cursor: default;
 }
@@ -129,6 +129,7 @@ body {
   float: left;
   margin: 1px 5px 1px 0px;
 }
+.colist .column .row.hasChildren figure:after,
 .colist .column .row figure.icon-folder:after {
   content: '';
   position: absolute;
@@ -146,6 +147,10 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.colist .column .row span.filename {
+  position: relative;
+  top: -1px;
 }
 .colist .column .row span.processing {
   background: rgba(0, 0, 0, 0.15);

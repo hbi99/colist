@@ -6,25 +6,34 @@
 
 	var colist = {
 		init: function() {
+			if (this.initiated) return;
+			// this flag prevents initiation more than once
+			this.initiated = true;
 			// fast references
 			this.defiant = Defiant;
-			this.el = $('.colist').on('click', '.row', this.doEvent);
+			this.el = $('.colist').on('mousedown', '.row', this.doEvent);
 			this.reel = this.el.find('> .reel');
 
 			$(document).bind('keydown', this.doEvent);
-
+			// init all sub objects
 			for (var name in this) {
 				if (typeof(this[name].init) === 'function') {
 					this[name].init();
 				}
 			}
-			// temp
+			this.doEvent('/customize-parent-frame/');
+			// init: get root folder
 			this.doEvent('/get-active-item/');
 		},
 		doEvent: function(event) {
 			var root = colist,
 				type = (typeof(event) === 'string')? event : event.type,
+				func,
+				oFile,
+				action,
+				xPath,
 				path,
+				thisCol,
 				oldCol,
 				newCol,
 				newRow,
@@ -34,7 +43,7 @@
 
 			switch (type) {
 				// native events
-				case 'click':
+				case 'mousedown':
 					newRow = $(this);
 					newCol = newRow.parents('.column');
 					newCol.find('.active').removeClass('active');
@@ -44,14 +53,16 @@
 					if (newCol === oldCol.prev('.column')) {
 						root.active.removeClass('active');
 					}
-					event.preventDefault();
+					//event.preventDefault();
 					root.makeActive(newRow);
 					break;
 				case 'keydown':
 					root.active = root.active || root.getActive();
 					if (!root.active.length) return;
-					// stop default behaviour
-					event.preventDefault();
+					if (event.which >= 37 && event.which <= 40) {
+						// stop default behaviour
+						event.preventDefault();
+					}
 					// handle arrow keys
 					switch (event.which) {
 						case 37: // left
@@ -81,6 +92,121 @@
 					}
 					break;
 				// custom events
+				case '/initiate-multisite/':
+					var sites = colist_cfg.sites,
+						rows = [];
+
+					if (!sites.length) return;
+
+					for (i=0, il=sites.length; i<il; i++) {
+						rows.push({
+							'@id': 'site-'+ sites[i]['@id'],
+							'@name': sites[i]['@name'],
+							'@extension': '_web',
+							'@action': '/get-network-shared/'
+						});
+					}
+
+					xPath = '//*[@id="network_shared"]';
+					oFile = JSON.search(root.ledger, xPath);
+					oFile[0].file = rows;
+					break;
+				case '/get-network-shared/':
+					var siteid = root.active.attr('data-id');
+					
+					func = function() {
+						root.reel.append( root.defiant.render({
+							'template': 'column',
+							'match': xPath,
+							'data': root.ledger
+						}) );
+					};
+
+					xPath = '//*[@id="network_shared"]/*[@id="'+ siteid +'"]';
+					oFile = JSON.search(root.ledger, xPath);
+					if (oFile.length && oFile[0].file) return func();
+
+					// start progress bar
+					root.doEvent('/start-progress-bar/');
+
+					$.ajax({
+						type: 'POST',
+						url: colist_cfg.ajax_path,
+						data: {
+							nonce  : colist_cfg.ajax_nonce,
+							action : 'colist/get_network_shared',
+							siteid : siteid
+						},
+						success: function(data) {
+							// finish progressbar
+							root.progress.set(100);
+							// store in ledger
+							oFile[0].file = data.file;
+
+							setTimeout(func, 250);
+						}
+					});
+					break;
+				case '/network-shared/':
+					root.reel.append( root.defiant.render({
+						'template': 'column',
+						'match': '//*[@id="network_shared"]',
+						'data': root.ledger
+					}) );
+					break;
+				case '/recent-uploads/':
+					func = function() {
+						root.reel.append( root.defiant.render({
+							'template': 'column',
+							'match': xPath,
+							'data': root.ledger
+						}) );
+					};
+
+					xPath = '//*[@id="recent_uploads"]';
+					oFile = JSON.search(root.ledger, xPath);
+					if (oFile.length && oFile[0].file) return func();
+
+					// start progress bar
+					root.doEvent('/start-progress-bar/');
+
+					$.ajax({
+						type: 'POST',
+						url: colist_cfg.ajax_path,
+						data: {
+							nonce  : colist_cfg.ajax_nonce,
+							action : 'colist/get_recent_uploads',
+							path   : 'recent_uploads'
+						},
+						success: function(data) {
+							// finish progressbar
+							root.progress.set(100);
+							// store in ledger
+							oFile[0].file = data.file;
+
+							setTimeout(func, 250);
+						}
+					});
+					break;
+				case '/show-search-results/':
+					break;
+				case '/start-progress-bar/':
+					var progress = root.progress,
+						activeCol = root.active ? root.active.parents('.column') : false,
+						progCol = progress.el.parent(),
+						pVal = parseInt(Math.random() * 40, 10) + 15,
+						left = (activeCol && activeCol.length)? activeCol[0].offsetLeft + activeCol[0].offsetWidth : 0;
+
+					if (activeCol && activeCol.length) progCol.css({'width': activeCol.width() +'px'});
+					progCol.css({'left': left +'px'});
+					progress.set(pVal);
+					break;
+				case '/customize-parent-frame/':
+					var parent = win.parent.colist_modal;
+					if (!parent || root.toolbar_init) return;
+					parent.doEvent( '/append-toolbar/', root.defiant.render('toolbar', {}) );
+					root.toolbar_init = true;
+					break;
 				case '/focusin-active-column/':
 					oldCol = root.active.parents('.column.active');
 					width = oldCol[0].offsetLeft + oldCol[0].offsetWidth + 351;
@@ -95,21 +221,53 @@
 						root.el.stop().animate({scrollLeft: oldCol[0].offsetLeft - 20}, 800);
 					}
 					break;
+				case '/get-extra-options/':
+					var extra = [
+						{
+							'@id': 'recent_uploads',
+							'@name': 'Recent uploads',
+							'@icon': 'cloud-upload',
+							'@extension': '_20',
+							'@action': '/recent-uploads/'
+						},
+						{
+							'@id': 'search_results',
+							'@name': 'Search results',
+							'@icon': 'search',
+							'@extension': '_30',
+							'@action': '/search-results/'
+						},
+						{
+							'@type': 'divider',
+							'@extension': '_99'
+						}
+					];
+					if (colist_cfg.multisite) {
+						extra.push({
+							'@id': 'network_shared',
+							'@name': 'Network Shared Media',
+							'@icon': 'globe',
+							'@extension': '_10',
+							'@action': '/network-shared/'
+						});
+					}
+					return extra;
+					break;
 				case '/get-active-item/':
-					var progress = root.progress,
-						pVal = parseInt(Math.random() * 40, 10) + 15,
-						progCol,
-						thisCol,
-						oFile,
-						left;
 
 					if (root.active) {
 						thisCol = root.active.parents('.column');
 						// path to request
 						path = thisCol.attr('data-id') +'/'+ root.active.find('.filename').text();
+
+						// check if its action
+						action = root.active.attr('data-cmd');
+						if (action) {
+							return root.doEvent(action);
+						}
 						// prepare for post-ajax call
 						oFile = JSON.search( root.ledger, '//*[@id="'+ path +'"]' );
-
+						
 						if (oFile[0]['@extension'] !== '_dir') {
 							//console.log( JSON.stringify(oFile[0]) );
 							root.reel.append( root.defiant.render({
@@ -132,11 +290,7 @@
 					}
 
 					// start progress bar
-					left = (thisCol && thisCol.length)? thisCol[0].offsetLeft + thisCol[0].offsetWidth : 0;
-					progCol = progress.el.parent()
-					if (thisCol && thisCol.length) progCol.css({'width': thisCol.width() +'px'});
-					progCol.css({'left': left +'px'});
-					progress.set(pVal);
+					root.doEvent('/start-progress-bar/');
 
 					// make ajax call
 					path = path || '.';
@@ -150,12 +304,18 @@
 						},
 						success: function(data) {
 							//console.log( data );
-							var root = colist;
+							var root = colist,
+								extra;
 							// finish progressbar
-							progress.set(100);
+							root.progress.set(100);
 							// store json data
-							if (!root.ledger) root.ledger = data;
-							else oFile[0].file = data.file;
+							if (!root.ledger) {
+								extra = root.doEvent('/get-extra-options/');
+								data.file = data.file.concat(extra);
+								root.ledger = data;
+								// prepare network shared media
+								root.doEvent('/initiate-multisite/');
+							} else oFile[0].file = data.file;
 
 							setTimeout(function() {
 								root.reel.append( root.defiant.render({
@@ -163,6 +323,9 @@
 									'match': '//*[@id="'+ path +'"]',
 									'data': root.ledger
 								}) );
+
+								// temp
+								//$('.row.hasChildren:nth(0)').trigger('click');
 							}, 250);
 						}
 					});
@@ -202,6 +365,7 @@
 						el = $(this).parent();
 						rows = el.find('.row');
 						if (rows.length === 0) return;
+						var startW = el.parent()[0].offsetWidth;
 						width = 0;
 						i = 0;
 						il = rows.length;
@@ -210,6 +374,7 @@
 						}
 						if (width - 4 > el.parent().width()) {
 							el.parent().css({'width': width +'px'});
+							root.reel.css({'width': (root.reel.width() + (width - startW)) +'px'});
 						}
 						break;
 					case 'mousedown':

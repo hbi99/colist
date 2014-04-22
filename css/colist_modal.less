@@ -1,0 +1,259 @@
+
+// What can I say...I just like primenumbers :)
+
+@import 'icons.css';
+
+@color: #999;
+@highlight: #f90;
+
+.colist-toolbar {
+	position: absolute;
+	top: 17px;
+	left: 211px;
+	right: 53px;
+	//background: rgba(220,0,0,0.1);
+
+	.colist_search {
+		position: absolute;
+		top: -1px;
+		right: 0px;
+
+		input {
+			position: relative;
+			background: lighten(@color, 31%);
+			border: 0px;
+			border-radius: 20px;
+			box-shadow: 0px 0px 1px #fff;
+			height: 27px;
+			width: 179px;
+			font-weight: 600;
+			.transition( 350ms );
+
+			&:focus {
+				outline: 0;
+				width: 281px;
+			}
+		}
+		&:before {
+			content: '\f002';
+			font-family: 'colist';
+			font-size: 15px;
+			line-height: 1;
+			position: absolute;
+			top: 5px;
+			right: 5px;
+			width: 21px;
+			height: 21px;
+			color: lighten(@color, 7%);
+			z-index: 2;
+		}
+	}
+
+	figure {
+		position: relative;
+		top: 4px;
+		left: 4px;
+		margin: 0px;
+		font-size: 15px;
+
+		&.icon-gear:before        { font-size: 16px; top: 1px; }
+		&.icon-trashcan-o:before  { font-size: 16px; }
+		&.icon-rotate-left:before { top: 1px; }
+		&.icon-check:before       { font-size: 17px; top: 1px; }
+	}
+
+	ul.colist-group {
+		float: left;
+		height: 27px;
+		margin: 0px 23px 0px 0px;
+		text-align: center;
+		.no-select;
+
+		> li {
+			float: left;
+			width: 37px;
+			height: 27px;
+			background: lighten(@color, 31%);
+			margin-left: 1px;
+			cursor: pointer;
+			color: @color;
+
+			&:first-child {
+				margin-left: 0px;
+				border-top-left-radius: 5px;
+				border-bottom-left-radius: 5px;
+			}
+			&:last-child {
+				border-top-right-radius: 5px;
+				border-bottom-right-radius: 5px;
+			}
+			&:hover:not(.disabled):not(.active) {
+				background: lighten(@color, 23%);
+				//box-shadow: inset 0px 1px 3px lighten(@color, 27%);
+				color: #fff;
+				//text-shadow: 0px 1px 3px lighten(@color, 7%);
+
+				&.extended:after {
+					border-top: 5px solid #fff;
+				}
+			}
+			&.active,
+			&:active:not(.disabled) {
+				background: lighten(@color, 23%);
+				box-shadow: inset 0px 1px 3px lighten(@color, 13%);
+				color: #fff;
+				text-shadow: 0px 1px 3px lighten(@color, 7%);
+
+				figure {
+					margin-top: 1px;
+					.transform( scale(0.93) );
+				}
+				&.extended:after {
+					border-top: 5px solid #fff;
+				}
+			}
+			&.extended {
+				position: relative;
+				padding-right: 8px;
+
+				&:after {
+					content: '';
+					position: absolute;
+					top: 11px;
+					right: 9px;
+					width: 0;
+					height: 0;
+					border-left: 4px solid transparent;
+					border-right: 4px solid transparent;
+					border-top: 5px solid @color;
+				}
+				figure {
+					left: 2px;
+				}
+			}
+			&.disabled {
+				color: lighten(@color, 23%);
+				cursor: default;
+			}
+		}
+	}
+	.submenu {
+		display: none;
+		position: absolute;
+		top: 32px;
+		left: 1px;
+		background: #fff;
+		padding: 7px 0px;
+		text-align: left;
+		text-shadow: 0px 0px 0px;
+		box-shadow: 0px 3px 13px rgba(0,0,0,0.25);
+		border: 1px solid rgba(0,0,0,0.15);
+		border-radius: 5px;
+
+		&:before {
+			content: '';
+			background: #fff;
+			position: absolute;
+			top: -6px;
+			left: 17px;
+			width: 10px;
+			height: 10px;
+			box-shadow: -2px -2px 2px rgba(0,0,0,0.05);
+			border-left: 1px solid rgba(0,0,0,0.15);
+			border-top: 1px solid rgba(0,0,0,0.15);
+			z-index: 1;
+			.rotate( 45deg );
+		}
+
+		li {
+			position: relative;
+			white-space: nowrap;
+			padding: 2px 17px 2px 25px;
+			line-height: 17px;
+			margin: 0px;
+			color: #666;
+			z-index: 2;
+
+			&.active,
+			&:hover:not(.divider) {
+				background: #f90;
+				color: #fff;
+				text-shadow: 0px -1px 0px rgba(0,0,0,0.2);
+				background-image: -moz-linear-gradient(top, hsla(0,0%,100%,0) 0%, hsla(0,0%,100%,0.65) 5%, hsla(0,0%,100%,0) 79%);
+				background-image: -webkit-linear-gradient(top, hsla(0,0%,100%,0) 0%, hsla(0,0%,100%,0.65) 5%, hsla(0,0%,100%,0) 79%);
+			}
+			&.checked:before {
+				content: "\f00c";
+				position: absolute;
+				top: 3px;
+				left: 6px;
+				font-size: 13px;
+				font-family: 'colist';
+				line-height: 1;
+			}
+
+			&.divider {
+				height: 1px;
+				background: #e2e2e2;
+				padding: 0px;
+				margin: 4px 0px 3px;
+				overflow: hidden;
+				cursor: default;
+			}
+		}
+	}
+}
+
+/*
+ * Mixins
+ */
+.rotate ( @deg ) {
+	-webkit-transform: rotate( @deg );
+	-moz-transform:    rotate( @deg );
+	-o-transform:      rotate( @deg );
+	-ms-transform:     rotate( @deg );
+	transform:         rotate( @deg );
+}
+.origin ( @value ) {
+	-webkit-transform-origin: @value;
+	-moz-transform-origin:    @value;
+	-ms-transform-origin:     @value;
+	-o-transform-origin:      @value;
+	transform-origin:         @value;
+}
+.delay (@duration: 400ms) {
+	transition-delay:         @duration;
+	-webkit-transition-delay: @duration;
+	-moz-transition-delay:    @duration;
+	-ms-transition-delay:     @duration;
+}
+.transition (@duration: 400ms) {
+	transition:         all @duration ease-in-out;
+	-webkit-transition: all @duration ease-in-out;
+	-moz-transition:    all @duration ease-in-out;
+	-ms-transition:     all @duration ease-in-out;
+}
+.transitionWhat (@what: all, @duration: 400ms) {
+	transition:         @what @duration ease-in-out;
+	-webkit-transition: @what @duration ease-in-out;
+	-moz-transition:    @what @duration ease-in-out;
+	-ms-transition:     @what @duration ease-in-out;
+}
+.select(@val) {
+	user-select:         @val;
+	-webkit-user-select: @val;
+	-moz-user-select:    @val;
+	-ms-user-select:     @val;
+}
+.transform (@val) {
+	transform:         @val;
+	-webkit-transform: @val;
+	-moz-transform:    @val;
+	-ms-transform:     @val;
+}
+.no-select () {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+}
+
