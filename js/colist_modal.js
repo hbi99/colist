@@ -83,7 +83,8 @@
 						isDir,
 						isMulti,
 						fileName = '',
-						colist = $('.media-iframe iframe')[0].contentWindow.colist;
+						fnEls    = $('.colist-toolbar .menu_filename'),
+						colist   = $('.media-iframe iframe')[0].contentWindow.colist;
 					for (i=0, il=selectInfo.length; i<il; i++) {
 						isDir = (selectInfo[i].extension.slice(0,1) === '_') || isDir;
 					}
@@ -94,12 +95,30 @@
 
 					var selected_filename = colist.doEvent('/language-phrase/', 'selected_files');
 
+					if (isFile && !isDir) {
+						fnEls.parent().removeClass('hideMe');
+					} else {
+						fnEls.parent().addClass('hideMe');
+					}
+
 					if (isFile && !isMulti) {
 						selected_filename = selectInfo[0].filename;
 					}
-					$('.colist-toolbar .menu_filename').html( selected_filename );
+
+					fnEls.html( selected_filename );
 					break;
-				case '/settings/':
+				case '/toggle-list-multi/':
+					el = arguments[1].find('figure');
+					var isExpand = el.hasClass('icon-expand'),
+						state    = isExpand ? 'collapse' : 'expand',
+						colist   = $('.media-iframe iframe')[0].contentWindow.colist;
+
+					el.removeClass('icon-expand icon-collapse')
+						.addClass('icon-'+ state);
+
+					colist.doEvent('/attenuate-siblings/', (isExpand ? 'off' : 'on'));
+					break;
+				case '/upload-file/':
 					break;
 				case '/download-selected/':
 					break;

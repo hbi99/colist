@@ -22,6 +22,9 @@
 					this[name].init();
 				}
 			}
+			
+			this.doEvent('/attenuate-siblings/', 'on');
+
 			this.doEvent('/customize-parent-frame/');
 			// init: get root folder
 			this.doEvent('/get-active-item/');
@@ -110,6 +113,27 @@
 					var phrase = arguments[1],
 						translation = $('.language var.'+ phrase, root.el);
 					return (translation.length)? translation.html() : phrase;
+				case '/attenuate-siblings/':
+					var isAttenuated = arguments[1] || root.attenuateSiblings;
+					if (isAttenuated === 'on') {
+						root.el.addClass('isAttenuated');
+						root.attenuateSiblings = 1;
+					} else {
+						root.el.removeClass('isAttenuated');
+						root.attenuateSiblings = 0;
+					}
+					break;
+				case '/identify-siblings/':
+					var activeCol = $('.column.active', root.reel),
+						rows = activeCol.find('.row .filename'),
+						pRow;
+					for (i=0, il=rows.length; i<il; i++) {
+						if (rows[i].innerHTML.match(/\-\d{1,}x\d{1,}/g) !== null) {
+							pRow = rows[i].parentNode;
+							pRow.className += ' attenuated';
+						}
+					}
+					break;
 				case '/initiate-multisite/':
 					var sites = colist_cfg.sites,
 						rows = [];
@@ -305,7 +329,7 @@
 					root.toolbar_init = true;
 					break;
 				case '/focusin-active-column/':
-					oldCol = root.activeCol;
+					oldCol = root.activeCol || root.getActive().parents('.column');
 					width = oldCol[0].offsetLeft + oldCol[0].offsetWidth + 351;
 
 					var scrollLeft = root.el.scrollLeft(),
@@ -445,6 +469,7 @@
 								extra = root.doEvent('/get-extra-options/');
 								data.file = data.file.concat(extra);
 								root.ledger = data;
+
 								// prepare network shared media
 								root.doEvent('/initiate-multisite/');
 							} else oFile[0].file = data.file;
@@ -455,6 +480,7 @@
 									'match': '//*[@id="'+ path +'"]',
 									'data': root.ledger
 								}) );
+								root.doEvent('/identify-siblings/');
 
 								// temp
 								//root.doEvent('/show-search-results/', 'hansen');
@@ -478,6 +504,11 @@
 				.nextAll('.column').each(function(i, el) {
 					el.parentNode.removeChild(el);
 				});
+			// abort current ajax call
+			if (this.active_ajax) {
+				this.active_ajax.abort();
+				this.progress.abort();
+			}
 			this.doEvent('/focusin-active-column/');
 			if (!ignoreCommand) {
 				this.doEvent('/get-active-item/');

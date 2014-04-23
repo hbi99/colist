@@ -36,6 +36,8 @@
 .icon-globe:before         { top: -1px; font-size: 15px; }
 
 
+.icon-expand:before        { content: "\e600"; }
+.icon-collapse:before      { content: "\e601"; }
 .icon-search:before        { content: "\f002"; }
 .icon-film:before          { content: "\f008"; }
 .icon-check:before         { content: "\f00c"; }

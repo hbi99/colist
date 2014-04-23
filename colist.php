@@ -175,8 +175,8 @@ class Colist {
 		) );
 
 		echo json_encode( array(
-			'@id'   => 'recent_uploads',
-			'file'  => $this->Loop_Object( $_REQUEST['path'], $uploads )
+			'@id'  => 'recent_uploads',
+			'file' => $this->Loop_Object( $_REQUEST['path'], $uploads )
 		) );
 
 		// exit properly - ajax call
@@ -257,7 +257,7 @@ class Colist {
 		$res = array();
 		foreach( $records as $file ) {
 			$item_path = str_replace( 'http://'. $_SERVER['SERVER_NAME'], '', $file->guid );
-			$fs_path = $_SERVER['DOCUMENT_ROOT'] . $item_path;
+			$fs_path   = $_SERVER['DOCUMENT_ROOT'] . $item_path;
 			$extension = strtolower( pathinfo( $file->guid, PATHINFO_EXTENSION ) );
 			$ofile = array(
 				'@id'        => $root_path .'/'. $file->post_title .'.'. $extension,
@@ -269,6 +269,9 @@ class Colist {
 			);
 			if ( in_array( $ofile['@extension'], $this->settings['img_types'] ) ) {
 				list( $ofile['@width'], $ofile['@height'] ) = getimagesize( $fs_path );
+				// get medium size - for faster UI
+				$medium_url = wp_get_attachment_image_src( $file->ID, 'medium' );
+				$ofile['@medium'] = $medium_url[0];
 			}
 			array_push( $res, $ofile );
 		}

@@ -29,10 +29,11 @@ wp_enqueue_script( array( 'colist-admin_script' ) );
 		<div class="colist-toolbar">
 			<ul class="colist-group">
 				<li data-cmd="/view-refresh/" title="Refresh"><figure class="icon-rotate-left">&#160;</figure></li>
+				<li data-cmd="/toggle-list-multi/" title="Toggle image siblings"><figure class="icon-expand">&#160;</figure></li>
 				<li data-cmd="/colist-use-selected/" title="Embed on page" class="disabled"><figure class="icon-check">&#160;</figure></li>
 			</ul>
 			<ul class="colist-group">
-				<li class="extended" title="Order by..."><figure class="icon-filter">&#160;</figure>
+				<li class="extended"><figure class="icon-filter" title="Order by...">&#160;</figure>
 					<ul class="submenu">
 						<li data-cmd="/order-by-name/">Name</li>
 						<li data-cmd="/order-by-kind/" class="checked">Filetype</li>
@@ -44,12 +45,11 @@ wp_enqueue_script( array( 'colist-admin_script' ) );
 				</li>
 			</ul>
 			<ul class="colist-group">
-				<li class="extended" title="Settings"><figure class="icon-gear">&#160;</figure>
-					<ul class="submenu">
-						<li data-cmd="/hide-multiples/" class="checked">Hide multiple sizes</li>
-						<li class="divider"></li>
-						<li data-cmd="/download-selected/">Download "<span class="menu_filename">&#160;</span>"</li>
-						<li data-cmd="/delete-selected/">Delete "<span class="menu_filename">&#160;</span>"</li>
+				<li class="extended"><figure class="icon-gear" title="Settings">&#160;</figure>
+					<ul class="submenu" title="">
+						<li data-cmd="/upload-file/">Upload files</li>
+						<li data-cmd="/download-selected/" class="hideMe">Download "<span class="menu_filename">&#160;</span>"</li>
+						<li data-cmd="/delete-selected/" class="hideMe">Delete "<span class="menu_filename">&#160;</span>"</li>
 						<li class="divider"></li>
 						<li data-cmd="/about-colist/">About Colist</li>
 					</ul>
@@ -131,7 +131,10 @@ wp_enqueue_script( array( 'colist-admin_script' ) );
 						<xsl:choose>
 							<xsl:when test="$isImage">
 								<div class="file-image">
-									<xsl:attribute name="style">background-image: url(<xsl:value-of select="@path"/>);</xsl:attribute>
+									<xsl:attribute name="style">background-image: url(<xsl:choose>
+										<xsl:when test="@medium"><xsl:value-of select="@medium"/></xsl:when>
+										<xsl:otherwise><xsl:value-of select="@path"/></xsl:otherwise>
+										</xsl:choose>);</xsl:attribute>
 									&#160;</div>
 							</xsl:when>
 							<xsl:when test="$isCleartext">

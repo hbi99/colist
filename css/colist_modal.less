@@ -85,6 +85,8 @@
 		&.icon-rotate-left:before { top: 1px; }
 		&.icon-check:before       { font-size: 17px; top: 1px; }
 		&.icon-filter:before      { font-size: 16px; top: 1px; }
+		&.icon-expand:before      { font-size: 19px; }
+		&.icon-collapse:before    { font-size: 19px; }
 	}
 
 	ul.colist-group {
@@ -116,7 +118,7 @@
 				background: lighten(@color, 23%);
 				//box-shadow: inset 0px 1px 3px lighten(@color, 27%);
 				color: #fff;
-				//text-shadow: 0px 1px 3px lighten(@color, 7%);
+				text-shadow: 0px 0px 1px #fff;
 
 				&.extended:after {
 					border-top: 5px solid #fff;
@@ -237,13 +239,14 @@
 			}
 
 			.menu_filename {
-				max-width: 100px;
+				max-width: 130px;
 				overflow: hidden;
 				text-overflow: ellipsis;
 				display: inline-block;
 				display: -moz-deck;
-				font-weight: 600;
-				color: #222;
+				//font-weight: 600;
+				font-style: italic;
+				color: #888;
 			}
 		}
 	}
