@@ -11,10 +11,11 @@
 			this.initiated = true;
 			// fast references
 			this.defiant = Defiant;
-			this.el = $('.colist').on('mousedown', '.row', this.doEvent);
+			this.el = $('.colist').on('mousedown', '.content', this.doEvent);
 			this.reel = this.el.find('> .reel');
 
 			$(document).bind('keydown', this.doEvent);
+			$(document).bind('click', this.doEvent);
 			// init all sub objects
 			for (var name in this) {
 				if (typeof(this[name].init) === 'function') {
@@ -28,6 +29,7 @@
 		doEvent: function(event) {
 			var root = colist,
 				type = (typeof(event) === 'string')? event : event.type,
+				metaKey = event.metaKey || event.ctrlKey,
 				func,
 				oFile,
 				action,
@@ -44,17 +46,29 @@
 			switch (type) {
 				// native events
 				case 'mousedown':
-					newRow = $(this);
+					if (event.target.className.indexOf('content') > -1) {
+						// clear selection
+						newCol = $(event.target).parents('.column');
+						newCol.find('.active').removeClass('active');
+						root.activeCol = newCol;
+						root.makeActive(false, true);
+						return;
+					}
+					newRow = $(event.target).parents('.row');
 					newCol = newRow.parents('.column');
-					newCol.find('.active').removeClass('active');
-
+					if (!metaKey) {
+						newCol.find('.active').removeClass('active');
+					}
 					root.active = root.active || root.getActive();
 					oldCol = root.active.parents('.column').removeClass('active');
 					if (newCol === oldCol.prev('.column')) {
 						root.active.removeClass('active');
 					}
 					//event.preventDefault();
-					root.makeActive(newRow);
+					root.makeActive(newRow, metaKey);
+					break;
+				case 'click':
+					win.parent.colist_modal.hideSubmenu();
 					break;
 				case 'keydown':
 					root.active = root.active || root.getActive();
@@ -92,6 +106,10 @@
 					}
 					break;
 				// custom events
+				case '/language-phrase/':
+					var phrase = arguments[1],
+						translation = $('.language var.'+ phrase, root.el);
+					return (translation.length)? translation.html() : phrase;
 				case '/initiate-multisite/':
 					var sites = colist_cfg.sites,
 						rows = [];
@@ -126,10 +144,16 @@
 					oFile = JSON.search(root.ledger, xPath);
 					if (oFile.length && oFile[0].file) return func();
 
+					// abort previous ajax call
+					if (root.active_ajax) {
+						root.active_ajax.abort();
+						root.progress.abort();
+					}
+
 					// start progress bar
 					root.doEvent('/start-progress-bar/');
 
-					$.ajax({
+					root.active_ajax = $.ajax({
 						type: 'POST',
 						url: colist_cfg.ajax_path,
 						data: {
@@ -140,6 +164,7 @@
 						success: function(data) {
 							// finish progressbar
 							root.progress.set(100);
+							root.active_ajax = false;
 							// store in ledger
 							oFile[0].file = data.file;
 
@@ -156,21 +181,35 @@
 					break;
 				case '/recent-uploads/':
 					func = function() {
+						var template = root.defiant.xsl_template,
+							sorter = template.selectSingleNode('//xsl:sort[@select="@extension"]'),
+							order = sorter.getAttribute('select');
+						// sort by date
+						sorter.setAttribute('select', 'modified');
+						// render html
 						root.reel.append( root.defiant.render({
 							'template': 'column',
 							'match': xPath,
 							'data': root.ledger
 						}) );
+						// restore previous sort order
+						sorter.setAttribute('select', order);
 					};
 
 					xPath = '//*[@id="recent_uploads"]';
 					oFile = JSON.search(root.ledger, xPath);
 					if (oFile.length && oFile[0].file) return func();
 
+					// abort previous ajax call
+					if (root.active_ajax) {
+						root.active_ajax.abort();
+						root.progress.abort();
+					}
+
 					// start progress bar
 					root.doEvent('/start-progress-bar/');
 
-					$.ajax({
+					root.active_ajax = $.ajax({
 						type: 'POST',
 						url: colist_cfg.ajax_path,
 						data: {
@@ -181,6 +220,7 @@
 						success: function(data) {
 							// finish progressbar
 							root.progress.set(100);
+							root.active_ajax = false;
 							// store in ledger
 							oFile[0].file = data.file;
 
@@ -189,17 +229,74 @@
 					});
 					break;
 				case '/show-search-results/':
+					var phrase = arguments[1] || root.search_phrase;
+
+					xPath = '//*[@id="search_results"]';
+					oFile = JSON.search(root.ledger, xPath);
+
+					func = function() {
+						root.reel.append( root.defiant.render({
+							'template': 'column',
+							'match': '//*[@id="search_results"]',
+							'data': root.ledger
+						}) );
+					};
+
+					// if no phrase is passed, render last results
+					if (!phrase) {
+						if (!oFile.file || !oFile.file.length) {
+							win.parent.colist_modal.doEvent('/focusin-search-field/');
+						}
+						return func();
+					}
+
+					root.makeActive( $('.row[data-id="search_results"]'), true );
+					root.search_phrase = phrase;
+
+					// abort previous ajax call
+					if (root.active_ajax) {
+						root.active_ajax.abort();
+						root.progress.abort();
+					}
+
+					// start progress bar
+					root.doEvent('/start-progress-bar/');
+
+					root.active_ajax = $.ajax({
+						type: 'POST',
+						url: colist_cfg.ajax_path,
+						data: {
+							nonce  : colist_cfg.ajax_nonce,
+							action : 'colist/get_search_results',
+							phrase : phrase
+						},
+						success: function(data) {
+							//console.log( data.file.length );
+
+							// finish progressbar
+							root.progress.set(100);
+							root.active_ajax = false;
+							// store in ledger
+							oFile[0].file = data.file;
+
+							setTimeout(func, 250);
+						}
+					});
 					break;
 				case '/start-progress-bar/':
 					var progress = root.progress,
+						progEl = arguments[1] ? arguments[1] : progress.defEl,
 						activeCol = root.active ? root.active.parents('.column') : false,
-						progCol = progress.el.parent(),
-						pVal = parseInt(Math.random() * 40, 10) + 15,
+						progCol = progEl.parent(),
+						pVal = parseInt(Math.random() * 31, 10) + 13,
 						left = (activeCol && activeCol.length)? activeCol[0].offsetLeft + activeCol[0].offsetWidth : 0;
 
-					if (activeCol && activeCol.length) progCol.css({'width': activeCol.width() +'px'});
-					progCol.css({'left': left +'px'});
-					progress.set(pVal);
+					if (!arguments[1]) {
+						if (activeCol && activeCol.length) progCol.css({'width': activeCol.width() +'px'});
+						progCol.css({'left': left +'px'});
+					}
+					progress.set(pVal, progEl);
+					progress.set(109-pVal, progEl, 379);
 					break;
 				case '/customize-parent-frame/':
 					var parent = win.parent.colist_modal;
@@ -208,7 +305,7 @@
 					root.toolbar_init = true;
 					break;
 				case '/focusin-active-column/':
-					oldCol = root.active.parents('.column.active');
+					oldCol = root.activeCol;
 					width = oldCol[0].offsetLeft + oldCol[0].offsetWidth + 351;
 
 					var scrollLeft = root.el.scrollLeft(),
@@ -235,7 +332,7 @@
 							'@name': 'Search results',
 							'@icon': 'search',
 							'@extension': '_30',
-							'@action': '/search-results/'
+							'@action': '/show-search-results/'
 						},
 						{
 							'@type': 'divider',
@@ -252,9 +349,7 @@
 						});
 					}
 					return extra;
-					break;
 				case '/get-active-item/':
-
 					if (root.active) {
 						thisCol = root.active.parents('.column');
 						// path to request
@@ -269,13 +364,41 @@
 						oFile = JSON.search( root.ledger, '//*[@id="'+ path +'"]' );
 						
 						if (oFile[0]['@extension'] !== '_dir') {
-							//console.log( JSON.stringify(oFile[0]) );
 							root.reel.append( root.defiant.render({
 								'template': 'single',
 								'match': '//*[@id="'+ path +'"]',
 								'data': root.ledger
 							}) );
-							root.doEvent('/focusin-active-column/');
+							//root.doEvent('/focusin-active-column/');
+							newCol = root.reel.find('.column:last-child').find('.file-preview pre');
+							if (newCol.length) {
+
+								// start progress bar
+								root.doEvent('/start-progress-bar/', newCol.find('.progress'));
+
+								$.ajax({
+									type: 'POST',
+									url: colist_cfg.ajax_path,
+									data: {
+										nonce  : colist_cfg.ajax_nonce,
+										action : 'colist/get_file_contents',
+										path   : oFile[0]['@path']
+									},
+									success: function(data) {
+										// finish progressbar
+										root.progress.set(100);
+										
+										setTimeout(function() {
+											var htm = data.replace(/</g, '&lt;');
+											htm = htm.replace(/>/g, '&gt;');
+											htm = htm.replace(/\n/g, '<br/>');
+											htm = htm.replace(/\t/g, '&#160; &#160; &#160; &#160; ');
+											newCol.html( htm );
+										}, 677);
+									}
+								});
+
+							}
 							return;
 						}
 						if (oFile[0].file) {
@@ -292,9 +415,15 @@
 					// start progress bar
 					root.doEvent('/start-progress-bar/');
 
+					// abort previous ajax call
+					if (root.active_ajax) {
+						root.active_ajax.abort();
+						root.progress.abort();
+					}
+
 					// make ajax call
 					path = path || '.';
-					$.ajax({
+					root.active_ajax = $.ajax({
 						type: 'POST',
 						url: colist_cfg.ajax_path,
 						data: {
@@ -303,11 +432,14 @@
 							path   : path
 						},
 						success: function(data) {
-							//console.log( data );
+							//console.log( JSON.stringify( data ) );
 							var root = colist,
 								extra;
 							// finish progressbar
 							root.progress.set(100);
+							
+							root.active_ajax = false;
+
 							// store json data
 							if (!root.ledger) {
 								extra = root.doEvent('/get-extra-options/');
@@ -325,6 +457,7 @@
 								}) );
 
 								// temp
+								//root.doEvent('/show-search-results/', 'hansen');
 								//$('.row.hasChildren:nth(0)').trigger('click');
 							}, 250);
 						}
@@ -335,15 +468,37 @@
 		getActive: function() {
 			return $('.column.active .row.active', this.el);
 		},
-		makeActive: function(newRow) {
+		makeActive: function(newRow, ignoreCommand) {
 			// make active
-			this.active = newRow.addClass('active');
-			this.active.parents('.column').addClass('active')
+			if (newRow) {
+				this.active    = newRow.addClass('active');
+				this.activeCol = this.active.parents('.column');
+			}
+			this.activeCol.addClass('active')
 				.nextAll('.column').each(function(i, el) {
 					el.parentNode.removeChild(el);
 				});
 			this.doEvent('/focusin-active-column/');
-			this.doEvent('/get-active-item/');
+			if (!ignoreCommand) {
+				this.doEvent('/get-active-item/');
+			}
+			// assemble selected file info
+			var actives = this.activeCol.find('.row.active'),
+				select_info = [],
+				il = actives.length,
+				i = 0,
+				filename,
+				el;
+			for (; i<il; i++) {
+				el = $(actives[i]);
+				filename = el.find('.filename').text();
+				select_info.push({
+					'extension': el.find('figure').attr('data-extension'),
+					'filename': filename,
+					'path': el.parents('.column').attr('data-id') +'/'+ filename
+				});
+			}
+			win.parent.colist_modal.doEvent('/file-selected/', select_info);
 		},
 		resize: {
 			init: function() {
@@ -407,13 +562,14 @@
 		},
 		progress: {
 			init: function() {
-				this.el = $('.reel .progress');
+				this.defEl = $('.reel .progress');
 			},
-			set: function(val, timed) {
+			set: function(val, aEl, timed) {
 				var self = this,
-					el   = this.el,
-					pEl  = el.parent();
+					el = aEl || self.el || self.defEl,
+					pEl = el.parent();
 				if (val <= ((el.width() / pEl.width()) * 100)) return;
+				self.el = el;
 				pEl.css({'opacity': '1'}).addClass('enabled');
 				self.timer = setTimeout(function() {
 					el.css({'width': val +'%'});
@@ -423,10 +579,15 @@
 			reset: function() {
 				var self = colist.progress;
 				win.clearTimeout(self.timer);
+				if (!self.el) return;
 				self.el.parent().css({'opacity': '0'});
 				setTimeout(function() {
 					self.el.css({'width': '0'}).removeClass('enabled');
+					self.el = false;
 				}, 200);
+			},
+			abort: function() {
+				colist.progress.reset();
 			}
 		},
 		getDim: function(el, a, v) {

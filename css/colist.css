@@ -26,7 +26,7 @@ body {
   height: 16px;
   margin: 0px;
   text-align: center;
-  color: rgba(0, 0, 0, 0.65);
+  color: rgba(0, 0, 0, 0.5);
 }
 .colist .reel {
   background: #fff;
@@ -42,6 +42,9 @@ body {
   height: 100%;
   border-right: #e0e0e0 1px solid;
   z-index: 2;
+}
+.colist .column:not(.preview) {
+  user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -57,6 +60,10 @@ body {
   position: relative;
   width: 100%;
   height: 100%;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 .colist .column .frame .resize {
   position: absolute;
@@ -97,6 +104,10 @@ body {
   background: #ddd;
   background: -moz-linear-gradient(left, #ffffff 0%, #dddddd 50%, #ffffff 100%);
   background: -webkit-linear-gradient(left, #ffffff 0%, #dddddd 50%, #ffffff 100%);
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 .colist .column .row {
   position: relative;
@@ -189,6 +200,21 @@ body {
   overflow: scroll;
   border: #ddd 1px solid;
   border-radius: 2px;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 11px;
+  line-height: 14px;
+  color: #888;
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+}
+.colist .file-preview .file-text .progressbar {
+  top: auto;
+  width: auto;
+  bottom: 0px;
+  right: 0px;
+  height: 2px;
 }
 .colist .file-preview .file-image {
   position: absolute;
@@ -199,6 +225,10 @@ body {
   background-size: 100%;
   background-repeat: no-repeat;
   background-position: 50% 50%;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 .colist .file-preview .file-generic {
   position: relative;
@@ -209,6 +239,10 @@ body {
   margin: 0px auto;
   width: 61%;
   max-width: 140px;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 .colist .file-preview .file-generic:before {
   content: '';
@@ -247,6 +281,10 @@ body {
   color: #999;
   text-align: right;
   font-size: 12px;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 .colist .file-details:before {
   content: '';
@@ -290,6 +328,11 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.colist .file-details .detail-row span span {
+  float: none;
+  padding-left: 0px;
+  color: #aaa;
+}
 .colist .file-details .detail-row.file-ext span {
   text-transform: uppercase;
 }
@@ -322,7 +365,7 @@ body {
   left: 0px;
   height: 2px;
   width: 0px;
-  background: #f90;
+  background: #ff9900;
   box-shadow: -1px 0px 0px #ff9900, 1px 0px 0px #ff9900;
 }
 /*

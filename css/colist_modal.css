@@ -5,6 +5,25 @@
   left: 211px;
   right: 53px;
 }
+.colist-toolbar input::-webkit-input-placeholder {
+  text-shadow: 0px 1px 0px #fff;
+}
+.colist-toolbar input:-moz-placeholder {
+  /* Firefox 18- */
+
+  text-shadow: 0px 1px 0px #fff;
+}
+.colist-toolbar input::-moz-placeholder {
+  /* Firefox 19+ */
+
+  text-shadow: 0px 1px 0px #fff;
+}
+.colist-toolbar input:-ms-input-placeholder {
+  text-shadow: 0px 1px 0px #fff;
+}
+.colist-toolbar .hideMe {
+  display: none;
+}
 .colist-toolbar .colist_search {
   position: absolute;
   top: -1px;
@@ -18,7 +37,10 @@
   box-shadow: 0px 0px 1px #fff;
   height: 27px;
   width: 179px;
+  line-height: 18px;
   font-weight: 600;
+  padding-left: 13px;
+  padding-right: 13px;
   transition: all 350ms ease-in-out;
   -webkit-transition: all 350ms ease-in-out;
   -moz-transition: all 350ms ease-in-out;
@@ -60,6 +82,10 @@
 }
 .colist-toolbar figure.icon-check:before {
   font-size: 17px;
+  top: 1px;
+}
+.colist-toolbar figure.icon-filter:before {
+  font-size: 16px;
   top: 1px;
 }
 .colist-toolbar ul.colist-group {
@@ -142,6 +168,7 @@
   position: absolute;
   top: 32px;
   left: 1px;
+  min-width: 120px;
   background: #fff;
   padding: 7px 0px;
   text-align: left;
@@ -172,18 +199,23 @@
   position: relative;
   white-space: nowrap;
   padding: 2px 17px 2px 25px;
+  font-size: 13px;
   line-height: 17px;
   margin: 0px;
   color: #666;
   z-index: 2;
 }
 .colist-toolbar .submenu li.active,
-.colist-toolbar .submenu li:hover:not(.divider) {
+.colist-toolbar .submenu li:hover:not(.disabled):not(.divider) {
   background: #f90;
   color: #fff;
   text-shadow: 0px -1px 0px rgba(0, 0, 0, 0.2);
   background-image: -moz-linear-gradient(top, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.65) 5%, rgba(255, 255, 255, 0) 79%);
   background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.65) 5%, rgba(255, 255, 255, 0) 79%);
+}
+.colist-toolbar .submenu li.active .menu_filename,
+.colist-toolbar .submenu li:hover:not(.disabled):not(.divider) .menu_filename {
+  color: inherit;
 }
 .colist-toolbar .submenu li.checked:before {
   content: "\f00c";
@@ -194,13 +226,26 @@
   font-family: 'colist';
   line-height: 1;
 }
+.colist-toolbar .submenu li.disabled {
+  cursor: default;
+  color: #bbb;
+}
 .colist-toolbar .submenu li.divider {
   height: 1px;
   background: #e2e2e2;
   padding: 0px;
-  margin: 4px 0px 3px;
+  margin: 5px 0px;
   overflow: hidden;
   cursor: default;
+}
+.colist-toolbar .submenu li .menu_filename {
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  display: -moz-deck;
+  font-weight: 600;
+  color: #222;
 }
 /*
  * Mixins

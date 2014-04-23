@@ -11,34 +11,103 @@
 				iframe[0].contentWindow.colist.doEvent('/customize-parent-frame/');
 			}
 			$(document).on('click', '[data-cmd]', this.doEvent);
+			$(document).on('mousedown', '.extended', this.doEvent);
 
 			setTimeout(function() {
 				$('#insert-media-button').trigger('click');
 
 				setTimeout(function() {
-					$('.media-menu-item:nth(5)').trigger('click');
+					$('.media-menu-item:nth(6)').trigger('click');
 				}, 500);
-
 			}, 100);
+		},
+		hideSubmenu: function(doUnbind) {
+			var root = colist_modal;
+			if (root.submenu) {
+				root.submenu.hide().parent().removeClass('active');
+				root.submenu = false;
+			}
+			if (!doUnbind) {
+				$(document).unbind('mousedown', root.hideSubmenu);
+			}
 		},
 		doEvent: function(event) {
 			var root = colist_modal,
 				type = (typeof(event) === 'string')? event : event.type,
+				el,
 				il, i;
 
 			switch (type) {
 				// native events
+				case 'keydown':
+					if (event.which === 13) {
+						$('.media-iframe iframe')[0]
+							.contentWindow
+							.colist.doEvent('/show-search-results/', this.value);
+						event.preventDefault();
+						this.blur();
+					}
+					break;
+				case 'mousedown':
+					el = $(this);
+					if (el.hasClass('extended')) {
+						event.preventDefault();
+
+						el.addClass('active');
+						root.hideSubmenu(true);
+						root.submenu = el.find('.submenu').show();
+
+						if (!root.submenu) {
+							$(document).bind('mousedown', root.hideSubmenu);
+						}
+					}
+					break;
 				case 'click':
-					event.preventDefault();
 					var cmd = this.getAttribute('href') || this.getAttribute('data-cmd');
-					root.doEvent(cmd, $(this), event);
+					el = $(this);
+					event.preventDefault();
+					root.hideSubmenu();
+					if (!el.hasClass('disabled')) {
+						root.doEvent(cmd, el, event);
+					}
 					break;
 				// custom events
-				case '/colist-settings/':
+				case '/focusin-search-field/':
+					setTimeout(function() {
+						$('.colist-toolbar input').focus();
+					}, 1);
 					break;
-				case '/colist-delete-selected/':
+				case '/file-selected/':
+					var selectInfo = arguments[1] || [],
+						isFile,
+						isDir,
+						isMulti,
+						fileName = '',
+						colist = $('.media-iframe iframe')[0].contentWindow.colist;
+					for (i=0, il=selectInfo.length; i<il; i++) {
+						isDir = (selectInfo[i].extension.slice(0,1) === '_') || isDir;
+					}
+					isFile = il > 0;
+					isMulti = il > 1;
+
+					root.hideSubmenu();
+
+					var selected_filename = colist.doEvent('/language-phrase/', 'selected_files');
+
+					if (isFile && !isMulti) {
+						selected_filename = selectInfo[0].filename;
+					}
+					$('.colist-toolbar .menu_filename').html( selected_filename );
 					break;
-				case '/colist-reload/':
+				case '/settings/':
+					break;
+				case '/download-selected/':
+					break;
+				case '/delete-selected/':
+					break;
+				case '/hide-selected/':
+					break;
+				case '/view-refresh/':
 					$('.media-iframe iframe')[0].contentWindow.location.reload();
 					break;
 				case '/colist-use-selected/':
@@ -47,6 +116,8 @@
 					var titleEl = $('.media-frame-title');
 					titleEl.find('.colist-toolbar').remove()
 					titleEl.append( arguments[1] );
+					// listening for 'return'
+					titleEl.find('input').bind('keydown', root.doEvent);
 					break;
 				// menu events
 				case '/order-by-name/':
@@ -54,10 +125,6 @@
 				case '/order-by-date/':
 				case '/order-by-size/':
 				case '/order-by-none/':
-					break;
-				case '/delete-selected/':
-					break;
-				case '/hide-multiples/':
 					break;
 				case '/about-colist/':
 					break;
@@ -68,6 +135,7 @@
 	win.colist_modal = colist_modal;
 
 	$(document).ready(function() {
+		if (!$('#tmpl-media-modal').length) return;
 		colist_modal.init();
 	});
 

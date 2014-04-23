@@ -91,9 +91,11 @@ class Colist {
 			wp_enqueue_script( array( 'colist-modal_script' ) );
 
 			//******** ajax
-			add_action( 'wp_ajax_colist/get_folder_list', array( $this, 'Get_Folder_List' ) );
+			add_action( 'wp_ajax_colist/get_folder_list',    array( $this, 'Get_Folder_List' ) );
 			add_action( 'wp_ajax_colist/get_recent_uploads', array( $this, 'Get_Recent_Uploads' ) );
 			add_action( 'wp_ajax_colist/get_network_shared', array( $this, 'Get_Network_Shared' ) );
+			add_action( 'wp_ajax_colist/get_file_contents',  array( $this, 'Get_File_Contents' ) );
+			add_action( 'wp_ajax_colist/get_search_results', array( $this, 'Get_Search_Results' ) );
 
 			//******** filters
 			add_filter( 'media_upload_tabs', array( $this, 'Add_Tab' ), 10, 1 );
@@ -132,17 +134,18 @@ class Colist {
 		$handle = opendir( $path );
 		while ( false !== ( $item = readdir( $handle ) ) ) {
 			if ( in_array( $item, $this->settings['ignore'] ) ) continue;
-			$item_path = $path . $item;
-			$is_dir = is_dir( $item_path );
+			$item_path = str_replace( './', '', $path . $item );
+			$is_dir    = is_dir( $item_path );
+			$filesize  = filesize( $item_path );
 			$ofile = array(
 				'@id'        => $_REQUEST['path'] .'/'. $item,
 				'@name'      => $item,
+				'@size'      => ( $filesize < 1024 ) ? '.'. $filesize : round( $filesize / 1024),
 				'@extension' => $is_dir ? '_dir' : strtolower( pathinfo( $item, PATHINFO_EXTENSION ) ),
-				'@size'      => round( filesize( $item_path ) / 1024),
-				'@modified'  => date ( 'Y-m-d H:i', filemtime( $item_path ) ),
+				'@modified'  => date ( 'Y-m-d H:i:s', filemtime( $item_path ) ),
 			);
 			if ( !$is_dir ) {
-				$ofile['@path'] = str_replace( $_SERVER['DOCUMENT_ROOT'], '', str_replace( './', '', $item_path) );
+				$ofile['@path'] = str_replace( $_SERVER['DOCUMENT_ROOT'], '', $item_path );
 			}
 			if ( in_array( $ofile['@extension'], $this->settings['img_types'] ) ) {
 				list( $ofile['@width'], $ofile['@height'] ) = getimagesize( $item_path );
@@ -165,34 +168,15 @@ class Colist {
 		// check nonce
 		if ( !wp_verify_nonce( $_POST['nonce'], 'colist_nonce' ) ) die( -1 );
 
-		$attachment = get_posts( array(
-			'post_type' => 'attachment',
-			'orderby' => 'modified',
+		$uploads = get_posts( array(
+			'post_type'      => 'attachment',
+			'orderby'        => 'modified',
 			'posts_per_page' => 21
 		) );
 
-		$res = array();
-		foreach( $attachment as $file ) {
-			$item_path = str_replace( 'http://'. $_SERVER['SERVER_NAME'], '', $file->guid );
-			$fs_path = $_SERVER['DOCUMENT_ROOT'] . $item_path;
-			$extension = strtolower( pathinfo( $file->guid, PATHINFO_EXTENSION ) );
-			$ofile = array(
-				'@id'        => $_REQUEST['path'] .'/'. $file->post_title .'.'. $extension,
-				'@path'      => $item_path,
-				'@name'      => $file->post_title .'.'. $extension,
-				'@size'      => round( filesize( $fs_path ) / 1024),
-				'@modified'  => $file->post_modified,
-				'@extension' => $extension
-			);
-			if ( in_array( $ofile['@extension'], $this->settings['img_types'] ) ) {
-				list( $ofile['@width'], $ofile['@height'] ) = getimagesize( $fs_path );
-			}
-			array_push( $res, $ofile );
-		}
-
 		echo json_encode( array(
 			'@id'   => 'recent_uploads',
-			'file'  => $res
+			'file'  => $this->Loop_Object( $_REQUEST['path'], $uploads )
 		) );
 
 		// exit properly - ajax call
@@ -201,26 +185,82 @@ class Colist {
 
 	function Get_Network_Shared() {
 		global $wpdb;
-
 		// set content type
 		header('Content-type: application/json');
 		// check nonce
 		if ( !wp_verify_nonce( $_POST['nonce'], 'colist_nonce' ) ) die( -1 );
 		// switch blog
-		switch_to_blog( $_POST['siteid'] );
+		list( $tmp, $id ) = explode('-', $_POST['siteid']);
+		switch_to_blog( $id );
 
-		$attachment = get_posts( array(
+		$attachments = get_posts( array(
 			'post_type'      => 'attachment',
 			'posts_per_page' => -1
 		) );
 
+		echo json_encode( array(
+			'@id'   => 'network_shared',
+			'file'  => $this->Loop_Object( $_REQUEST['siteid'], $attachments )
+		) );
+
+		// exit properly - ajax call
+		die( 1 );
+	}
+
+	function Get_File_Contents() {
+		// check nonce
+		if ( !wp_verify_nonce( $_POST['nonce'], 'colist_nonce' ) ) die( -1 );
+		// build file path
+		$filepath = $_SERVER['DOCUMENT_ROOT'] . $_REQUEST['path'];
+		// output
+		echo file_get_contents( $filepath );
+		// exit properly - ajax call
+		die( 1 );
+	}
+
+	function Get_Search_Results() {
+		global $wpdb;
+		// set content type
+		header('Content-type: application/json');
+		// check nonce
+		if ( !wp_verify_nonce( $_POST['nonce'], 'colist_nonce' ) ) die( -1 );
+
+		$phrase = $_REQUEST['phrase'];
+		// store current blog id
+		$current_blog_id = get_current_blog_id();
+
 		$res = array();
-		foreach( $attachment as $file ) {
+		$blog_list = get_blog_list( 0, 'all' );
+		foreach ( $blog_list as $blog ) {
+			switch_to_blog( $blog['blog_id'] );
+			$found  = get_posts( array(
+				'post_type'      => 'attachment',
+				'posts_per_page' => -1,
+				's'              => $phrase
+			) );
+			$res = array_merge( $res, $this->Loop_Object( 'search_results', $found ) );
+		}
+		// restore blog id
+		switch_to_blog( $current_blog_id );
+
+		echo json_encode( array(
+			'@id'     => 'search_results',
+			'@phrase' => $phrase,
+			'file'    => $res
+		) );
+
+		// exit properly - ajax call
+		die( 1 );
+	}
+
+	function Loop_Object( $root_path, $records ) {
+		$res = array();
+		foreach( $records as $file ) {
 			$item_path = str_replace( 'http://'. $_SERVER['SERVER_NAME'], '', $file->guid );
 			$fs_path = $_SERVER['DOCUMENT_ROOT'] . $item_path;
 			$extension = strtolower( pathinfo( $file->guid, PATHINFO_EXTENSION ) );
 			$ofile = array(
-				'@id'        => $_REQUEST['siteid'] .'/'. $file->post_title .'.'. $extension,
+				'@id'        => $root_path .'/'. $file->post_title .'.'. $extension,
 				'@path'      => $item_path,
 				'@name'      => $file->post_title .'.'. $extension,
 				'@size'      => round( filesize( $fs_path ) / 1024),
@@ -232,14 +272,7 @@ class Colist {
 			}
 			array_push( $res, $ofile );
 		}
-
-		echo json_encode( array(
-			'@id'   => 'network_shared',
-			'file'  => $res
-		) );
-
-		// exit properly - ajax call
-		die( 1 );
+		return $res;
 	}
 
 }
