@@ -22,9 +22,13 @@
 					this[name].init();
 				}
 			}
-			
+			// fast track initiate Defiant
+			Defiant.gather_templates();
+			// store xsl sorter
+			this.xsl_sorter = this.defiant.xsl_template.selectSingleNode('//*[@name="rows"]//xsl:sort[@select="@extension"]');
+			// turn on attentuation
 			this.doEvent('/attenuate-siblings/', 'on');
-
+			// append toolbar
 			this.doEvent('/customize-parent-frame/');
 			// init: get root folder
 			this.doEvent('/get-active-item/');
@@ -109,10 +113,46 @@
 					}
 					break;
 				// custom events
+				case 'render-list-of-path':
+					root.reel.append( root.defiant.render({
+						'template': 'column',
+						'match': arguments[1],
+						'data': root.ledger
+					}) );
+					root.doEvent('/identify-siblings/');
+					break;
 				case '/language-phrase/':
 					var phrase = arguments[1],
 						translation = $('.language var.'+ phrase, root.el);
 					return (translation.length)? translation.html() : phrase;
+				case '/toggle-sort-asc/':
+					var cols      = root.reel.find('.column:not(.preview)'),
+						activeCol = $(cols[ cols.length - 1 ]),
+						ascDesc   = arguments[1];
+					// alter sorter
+					root.xsl_sorter.setAttribute('order', ascDesc);
+					// get "path"
+					path = activeCol.attr('data-id');
+					// remove active column
+					activeCol.remove();
+					root.reel.find('.preview').remove();
+					// render html
+					root.doEvent('render-list-of-path', '//*[@id="'+ path +'"]');
+					break;
+				case '/change-sorting/':
+					var cols      = root.reel.find('.column:not(.preview)'),
+						activeCol = $(cols[ cols.length - 1 ]),
+						sort      = arguments[1];
+					// alter sorter
+					root.xsl_sorter.setAttribute('select', '@'+ sort);
+					// get "path"
+					path = activeCol.attr('data-id');
+					// remove active column
+					activeCol.remove();
+					root.reel.find('.preview').remove();
+					// render html
+					root.doEvent('render-list-of-path', '//*[@id="'+ path +'"]');
+					break;
 				case '/attenuate-siblings/':
 					var isAttenuated = arguments[1] || root.attenuateSiblings;
 					if (isAttenuated === 'on') {
@@ -157,11 +197,7 @@
 					var siteid = root.active.attr('data-id');
 					
 					func = function() {
-						root.reel.append( root.defiant.render({
-							'template': 'column',
-							'match': xPath,
-							'data': root.ledger
-						}) );
+						root.doEvent('render-list-of-path', xPath);
 					};
 
 					xPath = '//*[@id="network_shared"]/*[@id="'+ siteid +'"]';
@@ -206,16 +242,12 @@
 				case '/recent-uploads/':
 					func = function() {
 						var template = root.defiant.xsl_template,
-							sorter = template.selectSingleNode('//xsl:sort[@select="@extension"]'),
+							sorter = template.selectSingleNode('//*[@name="rows"]/xsl:sort[@select="@extension"]'),
 							order = sorter.getAttribute('select');
 						// sort by date
 						sorter.setAttribute('select', 'modified');
 						// render html
-						root.reel.append( root.defiant.render({
-							'template': 'column',
-							'match': xPath,
-							'data': root.ledger
-						}) );
+						root.doEvent('render-list-of-path', xPath);
 						// restore previous sort order
 						sorter.setAttribute('select', order);
 					};
@@ -259,11 +291,7 @@
 					oFile = JSON.search(root.ledger, xPath);
 
 					func = function() {
-						root.reel.append( root.defiant.render({
-							'template': 'column',
-							'match': '//*[@id="search_results"]',
-							'data': root.ledger
-						}) );
+						root.doEvent('render-list-of-path', '//*[@id="search_results"]');
 					};
 
 					// if no phrase is passed, render last results
@@ -329,7 +357,7 @@
 					root.toolbar_init = true;
 					break;
 				case '/focusin-active-column/':
-					oldCol = root.activeCol || root.getActive().parents('.column');
+					oldCol = root.activeCol || root.getActiveColumn();
 					width = oldCol[0].offsetLeft + oldCol[0].offsetWidth + 351;
 
 					var scrollLeft = root.el.scrollLeft(),
@@ -348,19 +376,19 @@
 							'@id': 'recent_uploads',
 							'@name': 'Recent uploads',
 							'@icon': 'cloud-upload',
-							'@extension': '_20',
+							'@order': '20',
 							'@action': '/recent-uploads/'
 						},
 						{
 							'@id': 'search_results',
 							'@name': 'Search results',
 							'@icon': 'search',
-							'@extension': '_30',
+							'@order': '30',
 							'@action': '/show-search-results/'
 						},
 						{
 							'@type': 'divider',
-							'@extension': '_99'
+							'@order': '99'
 						}
 					];
 					if (colist_cfg.multisite) {
@@ -368,7 +396,7 @@
 							'@id': 'network_shared',
 							'@name': 'Network Shared Media',
 							'@icon': 'globe',
-							'@extension': '_10',
+							'@order': '10',
 							'@action': '/network-shared/'
 						});
 					}
@@ -426,11 +454,7 @@
 							return;
 						}
 						if (oFile[0].file) {
-							root.reel.append( root.defiant.render({
-								'template': 'column',
-								'match': '//*[@id="'+ path +'"]',
-								'data': root.ledger
-							}) );
+							root.doEvent('render-list-of-path', '//*[@id="'+ path +'"]');
 							root.doEvent('/focusin-active-column/');
 							return;
 						}
@@ -457,8 +481,7 @@
 						},
 						success: function(data) {
 							//console.log( JSON.stringify( data ) );
-							var root = colist,
-								extra;
+							var root = colist;
 							// finish progressbar
 							root.progress.set(100);
 							
@@ -466,8 +489,7 @@
 
 							// store json data
 							if (!root.ledger) {
-								extra = root.doEvent('/get-extra-options/');
-								data.file = data.file.concat(extra);
+								data.options = root.doEvent('/get-extra-options/');
 								root.ledger = data;
 
 								// prepare network shared media
@@ -475,14 +497,10 @@
 							} else oFile[0].file = data.file;
 
 							setTimeout(function() {
-								root.reel.append( root.defiant.render({
-									'template': 'column',
-									'match': '//*[@id="'+ path +'"]',
-									'data': root.ledger
-								}) );
-								root.doEvent('/identify-siblings/');
+								root.doEvent('render-list-of-path', '//*[@id="'+ path +'"]');
 
 								// temp
+								//root.doEvent('/change-sorting/', 'name');
 								//root.doEvent('/show-search-results/', 'hansen');
 								//$('.row.hasChildren:nth(0)').trigger('click');
 							}, 250);
@@ -493,6 +511,12 @@
 		},
 		getActive: function() {
 			return $('.column.active .row.active', this.el);
+		},
+		getActiveColumn: function() {
+			var col = this.getActive().parents('.column');
+			if (!col.length) col = this.active.parents('.column');
+			if (!col.length) col = this.reel.find('.column:nth-last-child(1)');
+			return col;
 		},
 		makeActive: function(newRow, ignoreCommand) {
 			// make active

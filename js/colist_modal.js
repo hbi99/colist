@@ -113,10 +113,21 @@
 						state    = isExpand ? 'collapse' : 'expand',
 						colist   = $('.media-iframe iframe')[0].contentWindow.colist;
 
-					el.removeClass('icon-expand icon-collapse')
-						.addClass('icon-'+ state);
-
+					// change icon
+					el.removeClass('icon-expand icon-collapse').addClass('icon-'+ state);
+					// forward command
 					colist.doEvent('/attenuate-siblings/', (isExpand ? 'off' : 'on'));
+					break;
+				case '/toggle-asc-desc/':
+					el = arguments[1].find('figure');
+					var isAsc  = el.hasClass('icon-sort-amount-asc'),
+						state  = isAsc ? 'desc' : 'asc',
+						colist = $('.media-iframe iframe')[0].contentWindow.colist;
+
+					// change icon
+					el.removeClass('icon-sort-amount-asc icon-sort-amount-desc').addClass('icon-sort-amount-'+ state);
+					// forward command
+					colist.doEvent('/toggle-sort-asc/', (isAsc ? 'descending' : 'ascending'));
 					break;
 				case '/upload-file/':
 					break;
@@ -140,10 +151,16 @@
 					break;
 				// menu events
 				case '/order-by-name/':
-				case '/order-by-kind/':
-				case '/order-by-date/':
+				case '/order-by-extension/':
+				case '/order-by-modified/':
 				case '/order-by-size/':
 				case '/order-by-none/':
+					el = arguments[1];
+					el.parents('.submenu').find('.checked').removeClass('checked');
+					el.addClass('checked');
+
+					var colist = $('.media-iframe iframe')[0].contentWindow.colist;
+					colist.doEvent('/change-sorting/', type.split('-')[2].slice(0,-1));
 					break;
 				case '/about-colist/':
 					break;

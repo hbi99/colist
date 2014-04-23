@@ -36,23 +36,26 @@
 .icon-globe:before         { top: -1px; font-size: 15px; }
 
 
-.icon-expand:before        { content: "\e600"; }
-.icon-collapse:before      { content: "\e601"; }
-.icon-search:before        { content: "\f002"; }
-.icon-film:before          { content: "\f008"; }
-.icon-check:before         { content: "\f00c"; }
-.icon-times:before         { content: "\f00d"; }
-.icon-gear:before          { content: "\f013"; }
-.icon-trash-o:before       { content: "\f014"; }
-.icon-file-o:before        { content: "\f016"; }
-.icon-tag:before           { content: "\f02b"; }
-.icon-tags:before          { content: "\f02c"; }
-.icon-picture-o:before     { content: "\f03e"; }
-.icon-folder:before        { content: "\f07b"; }
-.icon-folder-open:before   { content: "\f07c"; }
-.icon-globe:before         { content: "\f0ac"; }
-.icon-filter:before        { content: "\f0b0"; }
-.icon-rotate-left:before   { content: "\f0e2"; }
-.icon-sitemap:before       { content: "\f0e8"; }
-.icon-cloud-upload:before  { content: "\f0ee"; }
-.icon-file-text-o:before   { content: "\f0f6"; }
+.icon-expand:before            { content: "\e600"; }
+.icon-collapse:before          { content: "\e601"; }
+.icon-search:before            { content: "\f002"; }
+.icon-film:before              { content: "\f008"; }
+.icon-check:before             { content: "\f00c"; }
+.icon-times:before             { content: "\f00d"; }
+.icon-gear:before              { content: "\f013"; }
+.icon-trash-o:before           { content: "\f014"; }
+.icon-file-o:before            { content: "\f016"; }
+.icon-tag:before               { content: "\f02b"; }
+.icon-tags:before              { content: "\f02c"; }
+.icon-picture-o:before         { content: "\f03e"; }
+.icon-folder:before            { content: "\f07b"; }
+.icon-folder-open:before       { content: "\f07c"; }
+.icon-globe:before             { content: "\f0ac"; }
+.icon-filter:before            { content: "\f0b0"; }
+.icon-rotate-left:before       { content: "\f0e2"; }
+.icon-sitemap:before           { content: "\f0e8"; }
+.icon-cloud-upload:before      { content: "\f0ee"; }
+.icon-file-text-o:before       { content: "\f0f6"; }
+.icon-sort-amount-asc:before   { content: "\f160"; }
+.icon-sort-amount-desc:before  { content: "\f161"; }
+

@@ -12,10 +12,10 @@ body {
   overflow-y: hidden;
   overflow-x: auto;
 }
-.colist.isAttenuated .row.attenuated span.filename {
+.colist.isAttenuated .row.attenuated:not(.active) span.filename {
   color: #aaa;
 }
-.colist.isAttenuated .row.attenuated figure {
+.colist.isAttenuated .row.attenuated:not(.active) figure {
   color: rgba(0, 0, 0, 0.25);
 }
 .colist * {
@@ -145,10 +145,6 @@ body {
 .colist .column .row figure {
   float: left;
   margin: 1px 5px 1px 0px;
-  transition: color 180ms ease-in-out;
-  -webkit-transition: color 180ms ease-in-out;
-  -moz-transition: color 180ms ease-in-out;
-  -ms-transition: color 180ms ease-in-out;
 }
 .colist .column .row.hasChildren figure:after,
 .colist .column .row figure.icon-folder:after {
@@ -172,10 +168,6 @@ body {
 .colist .column .row span.filename {
   position: relative;
   top: -1px;
-  transition: color 180ms ease-in-out;
-  -webkit-transition: color 180ms ease-in-out;
-  -moz-transition: color 180ms ease-in-out;
-  -ms-transition: color 180ms ease-in-out;
 }
 .colist .column .row span.processing {
   background: rgba(0, 0, 0, 0.15);

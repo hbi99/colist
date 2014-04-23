@@ -33,11 +33,12 @@ wp_enqueue_script( array( 'colist-admin_script' ) );
 				<li data-cmd="/colist-use-selected/" title="Embed on page" class="disabled"><figure class="icon-check">&#160;</figure></li>
 			</ul>
 			<ul class="colist-group">
+				<li data-cmd="/toggle-asc-desc/" title="Toggle Ascending"><figure class="icon-sort-amount-asc">&#160;</figure></li>
 				<li class="extended"><figure class="icon-filter" title="Order by...">&#160;</figure>
 					<ul class="submenu">
 						<li data-cmd="/order-by-name/">Name</li>
-						<li data-cmd="/order-by-kind/" class="checked">Filetype</li>
-						<li data-cmd="/order-by-date/">Date uploaded</li>
+						<li data-cmd="/order-by-extension/" class="checked">Filetype</li>
+						<li data-cmd="/order-by-modified/">Date uploaded</li>
 						<li data-cmd="/order-by-size/">Size</li>
 						<li class="divider"></li>
 						<li data-cmd="/order-by-none/">None</li>
@@ -77,40 +78,51 @@ wp_enqueue_script( array( 'colist-admin_script' ) );
 							</xsl:otherwise>
 						</xsl:choose>
 					</xsl:if>
-
-					<xsl:for-each select="./file">
-					<xsl:sort order="ascending" select="@extension"/>
-						<xsl:choose>
-							<xsl:when test="@type = 'divider'">
-								<div class="divider">&#160;</div>
-							</xsl:when>
-							<xsl:otherwise>
-								<div class="row">
-									<xsl:if test="@action">
-										<xsl:attribute name="class">row hasChildren</xsl:attribute>
-										<xsl:attribute name="data-cmd"><xsl:value-of select="@action"/></xsl:attribute>
-										<xsl:attribute name="data-id"><xsl:value-of select="@id"/></xsl:attribute>
-									</xsl:if>
-									<figure>
-										<xsl:attribute name="data-extension"><xsl:value-of select="@extension"/></xsl:attribute>
-										<xsl:attribute name="class"><xsl:choose>
-											<xsl:when test="@icon">icon-<xsl:value-of select="@icon"/></xsl:when>
-											<xsl:when test="@extension = '_web'">icon-sitemap</xsl:when>
-											<xsl:when test="@extension = '_dir'">icon-folder</xsl:when>
-											<xsl:when test="@extension = 'txt' or @extension = 'pdf'">icon-file-text-o</xsl:when>
-											<xsl:when test="@extension = 'gif' or @extension = 'jpg' or extension = 'jpeg' or @extension = 'png'">icon-picture-o</xsl:when>
-											<xsl:when test="@extension = 'avi' or @extension = 'mov'">icon-film</xsl:when>
-											<xsl:otherwise>icon-file-o</xsl:otherwise>
-										</xsl:choose></xsl:attribute>
-										&#160;</figure>
-									<span class="filename"><xsl:value-of select="@name"/></span>
-								</div>
-							</xsl:otherwise>
-						</xsl:choose>
-					</xsl:for-each>
+					<xsl:call-template name="rows">
+						<xsl:with-param name="toLoop" select="./options" />
+					</xsl:call-template>
+					<xsl:call-template name="rows">
+						<xsl:with-param name="toLoop" select="./file" />
+					</xsl:call-template>
 				</div>
 			</div>
 		</div>
+	</xsl:template>
+
+	<xsl:template name="rows">
+		<xsl:param name="toLoop" />
+
+		<xsl:for-each select="$toLoop">
+		<xsl:sort order="ascending" select="@order"/>
+		<xsl:sort order="ascending" select="@extension"/>
+			<xsl:choose>
+				<xsl:when test="@type = 'divider'">
+					<div class="divider">&#160;</div>
+				</xsl:when>
+				<xsl:otherwise>
+					<div class="row">
+						<xsl:if test="@action">
+							<xsl:attribute name="class">row hasChildren</xsl:attribute>
+							<xsl:attribute name="data-cmd"><xsl:value-of select="@action"/></xsl:attribute>
+							<xsl:attribute name="data-id"><xsl:value-of select="@id"/></xsl:attribute>
+						</xsl:if>
+						<figure>
+							<xsl:attribute name="data-extension"><xsl:value-of select="@extension"/></xsl:attribute>
+							<xsl:attribute name="class"><xsl:choose>
+								<xsl:when test="@icon">icon-<xsl:value-of select="@icon"/></xsl:when>
+								<xsl:when test="@extension = '_web'">icon-sitemap</xsl:when>
+								<xsl:when test="@extension = '_dir'">icon-folder</xsl:when>
+								<xsl:when test="@extension = 'txt' or @extension = 'pdf'">icon-file-text-o</xsl:when>
+								<xsl:when test="@extension = 'gif' or @extension = 'jpg' or extension = 'jpeg' or @extension = 'png'">icon-picture-o</xsl:when>
+								<xsl:when test="@extension = 'avi' or @extension = 'mov'">icon-film</xsl:when>
+								<xsl:otherwise>icon-file-o</xsl:otherwise>
+							</xsl:choose></xsl:attribute>
+							&#160;</figure>
+						<span class="filename"><xsl:value-of select="@name"/></span>
+					</div>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:for-each>
 	</xsl:template>
 
 	<xsl:template name="single">

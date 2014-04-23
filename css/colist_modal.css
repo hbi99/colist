@@ -94,6 +94,12 @@
 .colist-toolbar figure.icon-collapse:before {
   font-size: 19px;
 }
+.colist-toolbar figure.icon-sort-amount-asc:before {
+  font-size: 13px;
+}
+.colist-toolbar figure.icon-sort-amount-desc:before {
+  font-size: 13px;
+}
 .colist-toolbar ul.colist-group {
   float: left;
   height: 27px;
