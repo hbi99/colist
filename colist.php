@@ -70,6 +70,7 @@ class Colist {
 				'sites'      => array()
 			);
 			//******** multisite info
+			// TODO: rewrite this!
 			$blogs = $wpdb->get_results("SELECT blog_id FROM {$wpdb->blogs}
 											WHERE site_id = '{$wpdb->siteid}'
 												AND spam = '0'
