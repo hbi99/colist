@@ -132,12 +132,12 @@
 					// alter sorter
 					root.xsl_sorter.setAttribute('order', ascDesc);
 					// get "path"
-					path = activeCol.attr('data-id');
+					path = activeCol.attr('data-rpath');
 					// remove active column
 					activeCol.remove();
 					root.reel.find('.preview').remove();
 					// render html
-					root.doEvent('render-list-of-path', '//*[@id="'+ path +'"]');
+					root.doEvent('render-list-of-path', '//*[@rpath="'+ path +'"]');
 					break;
 				case '/change-sorting/':
 					var cols      = root.reel.find('.column:not(.preview)'),
@@ -146,12 +146,12 @@
 					// alter sorter
 					root.xsl_sorter.setAttribute('select', '@'+ sort);
 					// get "path"
-					path = activeCol.attr('data-id');
+					path = activeCol.attr('data-rpath');
 					// remove active column
 					activeCol.remove();
 					root.reel.find('.preview').remove();
 					// render html
-					root.doEvent('render-list-of-path', '//*[@id="'+ path +'"]');
+					root.doEvent('render-list-of-path', '//*[@rpath="'+ path +'"]');
 					break;
 				case '/attenuate-siblings/':
 					var isAttenuated = arguments[1] || root.attenuateSiblings;
@@ -182,25 +182,24 @@
 
 					for (i=0, il=sites.length; i<il; i++) {
 						rows.push({
-							'@id': 'site-'+ sites[i]['@id'],
+							'@rpath': 'site-'+ sites[i]['@rpath'],
 							'@name': sites[i]['@name'],
 							'@extension': '_web',
 							'@action': '/get-network-shared/'
 						});
 					}
 
-					xPath = '//*[@id="network_shared"]';
+					xPath = '//*[@rpath="network_shared"]';
 					oFile = JSON.search(root.ledger, xPath);
 					oFile[0].file = rows;
 					break;
 				case '/get-network-shared/':
-					var siteid = root.active.attr('data-id');
-					
+					var siteid = root.active.attr('data-rpath');
 					func = function() {
 						root.doEvent('render-list-of-path', xPath);
 					};
 
-					xPath = '//*[@id="network_shared"]/*[@id="'+ siteid +'"]';
+					xPath = '//*[@rpath="network_shared"]/*[@rpath="'+ siteid +'"]';
 					oFile = JSON.search(root.ledger, xPath);
 					if (oFile.length && oFile[0].file) return func();
 
@@ -235,14 +234,13 @@
 				case '/network-shared/':
 					root.reel.append( root.defiant.render({
 						'template': 'column',
-						'match': '//*[@id="network_shared"]',
+						'match': '//*[@rpath="network_shared"]',
 						'data': root.ledger
 					}) );
 					break;
 				case '/recent-uploads/':
 					func = function() {
-						var template = root.defiant.xsl_template,
-							sorter = template.selectSingleNode('//*[@name="rows"]/xsl:sort[@select="@extension"]'),
+						var sorter = root.xsl_sorter,
 							order = sorter.getAttribute('select');
 						// sort by date
 						sorter.setAttribute('select', 'modified');
@@ -252,7 +250,7 @@
 						sorter.setAttribute('select', order);
 					};
 
-					xPath = '//*[@id="recent_uploads"]';
+					xPath = '//*[@rpath="recent_uploads"]';
 					oFile = JSON.search(root.ledger, xPath);
 					if (oFile.length && oFile[0].file) return func();
 
@@ -287,11 +285,11 @@
 				case '/show-search-results/':
 					var phrase = arguments[1] || root.search_phrase;
 
-					xPath = '//*[@id="search_results"]';
+					xPath = '//*[@rpath="search_results"]';
 					oFile = JSON.search(root.ledger, xPath);
 
 					func = function() {
-						root.doEvent('render-list-of-path', '//*[@id="search_results"]');
+						root.doEvent('render-list-of-path', '//*[@rpath="search_results"]');
 					};
 
 					// if no phrase is passed, render last results
@@ -302,7 +300,7 @@
 						return func();
 					}
 
-					root.makeActive( $('.row[data-id="search_results"]'), true );
+					root.makeActive( $('.row[data-rpath="search_results"]'), true );
 					root.search_phrase = phrase;
 
 					// abort previous ajax call
@@ -358,6 +356,7 @@
 					break;
 				case '/focusin-active-column/':
 					oldCol = root.activeCol || root.getActiveColumn();
+					if (!oldCol.length) return;
 					width = oldCol[0].offsetLeft + oldCol[0].offsetWidth + 351;
 
 					var scrollLeft = root.el.scrollLeft(),
@@ -373,14 +372,14 @@
 				case '/get-extra-options/':
 					var extra = [
 						{
-							'@id': 'recent_uploads',
+							'@rpath': 'recent_uploads',
 							'@name': 'Recent uploads',
 							'@icon': 'cloud-upload',
 							'@order': '20',
 							'@action': '/recent-uploads/'
 						},
 						{
-							'@id': 'search_results',
+							'@rpath': 'search_results',
 							'@name': 'Search results',
 							'@icon': 'search',
 							'@order': '30',
@@ -393,7 +392,7 @@
 					];
 					if (colist_cfg.multisite) {
 						extra.push({
-							'@id': 'network_shared',
+							'@rpath': 'network_shared',
 							'@name': 'Network Shared Media',
 							'@icon': 'globe',
 							'@order': '10',
@@ -404,8 +403,9 @@
 				case '/get-active-item/':
 					if (root.active) {
 						thisCol = root.active.parents('.column');
+						if (thisCol.hasClass('preview')) return;
 						// path to request
-						path = thisCol.attr('data-id') +'/'+ root.active.find('.filename').text();
+						path = thisCol.attr('data-rpath') +'/'+ root.active.find('.filename').text();
 
 						// check if its action
 						action = root.active.attr('data-cmd');
@@ -413,12 +413,20 @@
 							return root.doEvent(action);
 						}
 						// prepare for post-ajax call
-						oFile = JSON.search( root.ledger, '//*[@id="'+ path +'"]' );
-						
+						oFile = JSON.search( root.ledger, '//*[@rpath="'+ path +'"]' );
+						if (!oFile.length) return;
 						if (oFile[0]['@extension'] !== '_dir') {
+							var fileId = root.active.attr('data-id');
+							if (fileId) {
+								xPath = '//*[@id="'+ fileId +'"]';
+								oFile = JSON.search( root.ledger, '//*[@id="'+ fileId +'"]' );
+							} else {
+								xPath = '//*[@rpath="'+ path +'"]';
+							}
+
 							root.reel.append( root.defiant.render({
 								'template': 'single',
-								'match': '//*[@id="'+ path +'"]',
+								'match': xPath,
 								'data': root.ledger
 							}) );
 							//root.doEvent('/focusin-active-column/');
@@ -454,7 +462,7 @@
 							return;
 						}
 						if (oFile[0].file) {
-							root.doEvent('render-list-of-path', '//*[@id="'+ path +'"]');
+							root.doEvent('render-list-of-path', '//*[@rpath="'+ path +'"]');
 							root.doEvent('/focusin-active-column/');
 							return;
 						}
@@ -497,7 +505,7 @@
 							} else oFile[0].file = data.file;
 
 							setTimeout(function() {
-								root.doEvent('render-list-of-path', '//*[@id="'+ path +'"]');
+								root.doEvent('render-list-of-path', '//*[@rpath="'+ path +'"]');
 
 								// temp
 								//root.doEvent('/change-sorting/', 'name');
@@ -524,6 +532,7 @@
 				this.active    = newRow.addClass('active');
 				this.activeCol = this.active.parents('.column');
 			}
+			if (this.activeCol.hasClass('preview')) return;
 			this.activeCol.addClass('active')
 				.nextAll('.column').each(function(i, el) {
 					el.parentNode.removeChild(el);
@@ -550,7 +559,7 @@
 				select_info.push({
 					'extension': el.find('figure').attr('data-extension'),
 					'filename': filename,
-					'path': el.parents('.column').attr('data-id') +'/'+ filename
+					'path': el.parents('.column').attr('data-rpath') +'/'+ filename
 				});
 			}
 			win.parent.colist_modal.doEvent('/file-selected/', select_info);

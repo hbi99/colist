@@ -51,6 +51,7 @@ wp_enqueue_script( array( 'colist-admin_script' ) );
 						<li data-cmd="/upload-file/">Upload files</li>
 						<li data-cmd="/download-selected/" class="hideMe">Download "<span class="menu_filename">&#160;</span>"</li>
 						<li data-cmd="/delete-selected/" class="hideMe">Delete "<span class="menu_filename">&#160;</span>"</li>
+						<li data-cmd="/replace-selected/" class="hideMe">Replace "<span class="menu_filename">&#160;</span>"</li>
 						<li class="divider"></li>
 						<li data-cmd="/about-colist/">About Colist</li>
 					</ul>
@@ -64,13 +65,13 @@ wp_enqueue_script( array( 'colist-admin_script' ) );
 	
 	<xsl:template name="column">
 		<div class="column active">
-			<xsl:attribute name="data-id"><xsl:value-of select="./@id"/></xsl:attribute>
+			<xsl:attribute name="data-rpath"><xsl:value-of select="./@rpath"/></xsl:attribute>
 			<div class="frame">
 				<div class="resize">&#160;</div>
 				<div class="content">
 					<xsl:if test="count(./file) = 0">
 						<xsl:choose>
-							<xsl:when test="@id = 'search_results'">
+							<xsl:when test="@rpath = 'search_results'">
 								<div class="folder_empty">Enter search phrase</div>
 							</xsl:when>
 							<xsl:otherwise>
@@ -101,10 +102,11 @@ wp_enqueue_script( array( 'colist-admin_script' ) );
 				</xsl:when>
 				<xsl:otherwise>
 					<div class="row">
+						<xsl:attribute name="data-id"><xsl:value-of select="@id"/></xsl:attribute>
 						<xsl:if test="@action">
 							<xsl:attribute name="class">row hasChildren</xsl:attribute>
 							<xsl:attribute name="data-cmd"><xsl:value-of select="@action"/></xsl:attribute>
-							<xsl:attribute name="data-id"><xsl:value-of select="@id"/></xsl:attribute>
+							<xsl:attribute name="data-rpath"><xsl:value-of select="@rpath"/></xsl:attribute>
 						</xsl:if>
 						<figure>
 							<xsl:attribute name="data-extension"><xsl:value-of select="@extension"/></xsl:attribute>
@@ -131,6 +133,7 @@ wp_enqueue_script( array( 'colist-admin_script' ) );
 
 		<div class="column preview">
 			<xsl:attribute name="data-id"><xsl:value-of select="@id"/></xsl:attribute>
+			<xsl:attribute name="data-rpath"><xsl:value-of select="@rpath"/></xsl:attribute>
 			<xsl:attribute name="style"><xsl:choose>
 				<xsl:when test="$isImage">width: 269px;</xsl:when>
 				<xsl:when test="$isCleartext">width: 283px;</xsl:when>

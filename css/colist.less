@@ -23,6 +23,11 @@ body {
 	&.isAttenuated {
 		.row {
 			&.attenuated:not(.active) {
+				height: 0px;
+				margin-top: 0px;
+				padding-top: 0px;
+				padding-bottom: 0px;
+
 				span.filename {
 					color: #aaa;
 					//.transitionWhat( color, 180ms );
@@ -149,6 +154,10 @@ body {
 			padding: 2px 7px 2px 7px;
 			border-radius: 12px;
 			cursor: default;
+			overflow: hidden;
+			.trans2Prop( height 1000ms ease-in-out,
+						padding 600ms ease-in-out,
+						margin 400ms ease-in-out );
 
 			&:after {
 				content: '.';
@@ -445,6 +454,12 @@ body {
 	-webkit-transition: @what @duration ease-in-out;
 	-moz-transition:    @what @duration ease-in-out;
 	-ms-transition:     @what @duration ease-in-out;
+}
+.trans2Prop ( @val1, @val2, @val3 ) {
+	transition:         @val1, @val2, @val3;
+	-webkit-transition: @val1, @val2, @val3;
+	-moz-transition:    @val1, @val2, @val3;
+	-ms-transition:     @val1, @val2, @val3;
 }
 .select ( @val ) {
 	user-select:         @val;

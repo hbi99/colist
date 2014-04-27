@@ -70,16 +70,13 @@ class Colist {
 				'sites'      => array()
 			);
 			//******** multisite info
-			// TODO: rewrite this!
-			$blogs = $wpdb->get_results("SELECT blog_id FROM {$wpdb->blogs}
-											WHERE site_id = '{$wpdb->siteid}'
-												AND spam = '0'
-												AND deleted = '0'
-												AND archived = '0';");
+			$blogs = wp_get_sites( array(
+				'network_id' => $wpdb->siteid
+			) );
 			foreach ( $blogs as $blog ) {
 				$blog = array(
-					'@id'        => $blog->blog_id,
-					'@name'      => get_blog_option( $blog->blog_id, 'blogname' )
+					'@rpath'     => $blog['blog_id'],
+					'@name'      => get_blog_option( $blog['blog_id'], 'blogname' )
 				);
 				array_push( $config['sites'], $blog );
 			}
@@ -139,7 +136,7 @@ class Colist {
 			$is_dir    = is_dir( $item_path );
 			$filesize  = filesize( $item_path );
 			$ofile = array(
-				'@id'        => $_REQUEST['path'] .'/'. $item,
+				'@rpath'     => $_REQUEST['path'] .'/'. $item,
 				'@name'      => $item,
 				'@size'      => ( $filesize < 1024 ) ? '.'. $filesize : round( $filesize / 1024),
 				'@extension' => $is_dir ? '_dir' : strtolower( pathinfo( $item, PATHINFO_EXTENSION ) ),
@@ -155,9 +152,9 @@ class Colist {
 		}
 		// output response
 		echo json_encode( array(
-			'@id'   => $_REQUEST['path'],
-			'@name' => basename( $path ),
-			'file'  => $res
+			'@rpath' => $_REQUEST['path'],
+			'@name'  => basename( $path ),
+			'file'   => $res
 		) );
 		// exit properly - ajax call
 		die( 1 );
@@ -176,8 +173,8 @@ class Colist {
 		) );
 
 		echo json_encode( array(
-			'@id'  => 'recent_uploads',
-			'file' => $this->Loop_Object( $_REQUEST['path'], $uploads )
+			'@rpath' => 'recent_uploads',
+			'file'   => $this->Loop_Object( $_REQUEST['path'], $uploads )
 		) );
 
 		// exit properly - ajax call
@@ -185,7 +182,6 @@ class Colist {
 	}
 
 	function Get_Network_Shared() {
-		global $wpdb;
 		// set content type
 		header('Content-type: application/json');
 		// check nonce
@@ -200,8 +196,8 @@ class Colist {
 		) );
 
 		echo json_encode( array(
-			'@id'   => 'network_shared',
-			'file'  => $this->Loop_Object( $_REQUEST['siteid'], $attachments )
+			'@rpath' => 'network_shared',
+			'file'   => $this->Loop_Object( $_REQUEST['siteid'], $attachments )
 		) );
 
 		// exit properly - ajax call
@@ -220,7 +216,6 @@ class Colist {
 	}
 
 	function Get_Search_Results() {
-		global $wpdb;
 		// set content type
 		header('Content-type: application/json');
 		// check nonce
@@ -245,7 +240,7 @@ class Colist {
 		switch_to_blog( $current_blog_id );
 
 		echo json_encode( array(
-			'@id'     => 'search_results',
+			'@rpath'  => 'search_results',
 			'@phrase' => $phrase,
 			'file'    => $res
 		) );
@@ -261,7 +256,8 @@ class Colist {
 			$fs_path   = $_SERVER['DOCUMENT_ROOT'] . $item_path;
 			$extension = strtolower( pathinfo( $file->guid, PATHINFO_EXTENSION ) );
 			$ofile = array(
-				'@id'        => $root_path .'/'. $file->post_title .'.'. $extension,
+				'@id'        => $file->ID,
+				'@rpath'     => $root_path .'/'. $file->post_title .'.'. $extension,
 				'@path'      => $item_path,
 				'@name'      => $file->post_title .'.'. $extension,
 				'@size'      => round( filesize( $fs_path ) / 1024),

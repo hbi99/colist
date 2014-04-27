@@ -12,6 +12,12 @@ body {
   overflow-y: hidden;
   overflow-x: auto;
 }
+.colist.isAttenuated .row.attenuated:not(.active) {
+  height: 0px;
+  margin-top: 0px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+}
 .colist.isAttenuated .row.attenuated:not(.active) span.filename {
   color: #aaa;
 }
@@ -123,6 +129,11 @@ body {
   padding: 2px 7px 2px 7px;
   border-radius: 12px;
   cursor: default;
+  overflow: hidden;
+  transition: height 1000ms ease-in-out, padding 600ms ease-in-out, margin 400ms ease-in-out;
+  -webkit-transition: height 1000ms ease-in-out, padding 600ms ease-in-out, margin 400ms ease-in-out;
+  -moz-transition: height 1000ms ease-in-out, padding 600ms ease-in-out, margin 400ms ease-in-out;
+  -ms-transition: height 1000ms ease-in-out, padding 600ms ease-in-out, margin 400ms ease-in-out;
 }
 .colist .column .row:after {
   content: '.';
