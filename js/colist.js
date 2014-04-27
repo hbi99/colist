@@ -37,6 +37,8 @@
 			var root = colist,
 				type = (typeof(event) === 'string')? event : event.type,
 				metaKey = event.metaKey || event.ctrlKey,
+				domain,
+				el,
 				func,
 				oFile,
 				action,
@@ -46,6 +48,7 @@
 				oldCol,
 				newCol,
 				newRow,
+				rows,
 				cols,
 				width,
 				il, i;
@@ -113,7 +116,58 @@
 					}
 					break;
 				// custom events
-				case 'render-list-of-path':
+				case '/download-selected/':
+					domain = document.location.protocol +'//'+ document.location.host;
+					path = root.activeCol.attr('data-rpath') +'/'+ root.active.find('.filename').text();
+					oFile = JSON.search( root.ledger, '//*[@rpath="'+ path +'"]' );
+					
+					window.open( domain + oFile[0]['@path'] );
+					break;
+				case '/delete-selected/':
+					domain = document.location.protocol +'//'+ document.location.host;
+					var files = [],
+						selEl = root.activeCol.find('.row.active'),
+						jq = $;
+
+					i = 0;
+					il = selEl.length;
+					path = root.activeCol.attr('data-rpath') +'/';
+					for (; i<il; i++) {
+						el = jq(selEl[i]).prepend('<span class="processing"><span class="bar"></span></span>');
+						xPath = path + el.find('.filename').text();
+						oFile = JSON.search( root.ledger, '//*[@rpath="'+ xPath +'"]' );
+						files.push( domain + oFile[0]['@path'] );
+					}
+					
+					selEl.parents('.content').trigger('mousedown');
+
+					setTimeout(function() {
+						var pVal = parseInt(Math.random() * 31, 10) + 13;
+						selEl.find('.processing .bar').css({'width': pVal +'%'});
+					},1);
+
+					$.ajax({
+						type: 'POST',
+						url: colist_cfg.ajax_path,
+						data: {
+							nonce  : colist_cfg.ajax_nonce,
+							action : 'colist/delete_files',
+							files  : files
+						},
+						success: function(data) {
+							// finish progressbar
+							selEl.find('.processing .bar').css({'width': '100%'});
+							console.log( data );
+							
+							setTimeout(function() {
+								selEl.fadeOut(241, function() {
+									selEl.remove();
+								});
+							}, 251);
+						}
+					});
+					break;
+				case '/render-list-of-path/':
 					root.reel.append( root.defiant.render({
 						'template': 'column',
 						'match': arguments[1],
@@ -126,32 +180,32 @@
 						translation = $('.language var.'+ phrase, root.el);
 					return (translation.length)? translation.html() : phrase;
 				case '/toggle-sort-asc/':
-					var cols      = root.reel.find('.column:not(.preview)'),
-						activeCol = $(cols[ cols.length - 1 ]),
-						ascDesc   = arguments[1];
+					cols = root.reel.find('.column:not(.preview)');
+					thisCol = $(cols[ cols.length - 1 ]);
+					var ascDesc = arguments[1];
 					// alter sorter
 					root.xsl_sorter.setAttribute('order', ascDesc);
 					// get "path"
-					path = activeCol.attr('data-rpath');
+					path = thisCol.attr('data-rpath');
 					// remove active column
-					activeCol.remove();
+					thisCol.remove();
 					root.reel.find('.preview').remove();
 					// render html
-					root.doEvent('render-list-of-path', '//*[@rpath="'+ path +'"]');
+					root.doEvent('/render-list-of-path/', '//*[@rpath="'+ path +'"]');
 					break;
 				case '/change-sorting/':
-					var cols      = root.reel.find('.column:not(.preview)'),
-						activeCol = $(cols[ cols.length - 1 ]),
-						sort      = arguments[1];
+					cols = root.reel.find('.column:not(.preview)');
+					thisCol = $(cols[ cols.length - 1 ]);
+					var sort = arguments[1];
 					// alter sorter
 					root.xsl_sorter.setAttribute('select', '@'+ sort);
 					// get "path"
-					path = activeCol.attr('data-rpath');
+					path = thisCol.attr('data-rpath');
 					// remove active column
-					activeCol.remove();
+					thisCol.remove();
 					root.reel.find('.preview').remove();
 					// render html
-					root.doEvent('render-list-of-path', '//*[@rpath="'+ path +'"]');
+					root.doEvent('/render-list-of-path/', '//*[@rpath="'+ path +'"]');
 					break;
 				case '/attenuate-siblings/':
 					var isAttenuated = arguments[1] || root.attenuateSiblings;
@@ -164,9 +218,9 @@
 					}
 					break;
 				case '/identify-siblings/':
-					var activeCol = $('.column.active', root.reel),
-						rows = activeCol.find('.row .filename'),
-						pRow;
+					thisCol = $('.column.active', root.reel);
+					rows = thisCol.find('.row .filename');
+					var pRow;
 					for (i=0, il=rows.length; i<il; i++) {
 						if (rows[i].innerHTML.match(/\-\d{1,}x\d{1,}/g) !== null) {
 							pRow = rows[i].parentNode;
@@ -175,8 +229,8 @@
 					}
 					break;
 				case '/initiate-multisite/':
-					var sites = colist_cfg.sites,
-						rows = [];
+					var sites = colist_cfg.sites;
+					rows = [];
 
 					if (!sites.length) return;
 
@@ -196,7 +250,7 @@
 				case '/get-network-shared/':
 					var siteid = root.active.attr('data-rpath');
 					func = function() {
-						root.doEvent('render-list-of-path', xPath);
+						root.doEvent('/render-list-of-path/', xPath);
 					};
 
 					xPath = '//*[@rpath="network_shared"]/*[@rpath="'+ siteid +'"]';
@@ -245,7 +299,7 @@
 						// sort by date
 						sorter.setAttribute('select', 'modified');
 						// render html
-						root.doEvent('render-list-of-path', xPath);
+						root.doEvent('/render-list-of-path/', xPath);
 						// restore previous sort order
 						sorter.setAttribute('select', order);
 					};
@@ -283,32 +337,29 @@
 					});
 					break;
 				case '/show-search-results/':
-					var phrase = arguments[1] || root.search_phrase;
+					var sPhrase = arguments[1] || root.search_phrase;
 
 					xPath = '//*[@rpath="search_results"]';
 					oFile = JSON.search(root.ledger, xPath);
-
 					func = function() {
-						root.doEvent('render-list-of-path', '//*[@rpath="search_results"]');
+						root.doEvent('/render-list-of-path/', '//*[@rpath="search_results"]');
 					};
 
 					// if no phrase is passed, render last results
-					if (!phrase) {
+					if (!sPhrase) {
 						if (!oFile.file || !oFile.file.length) {
 							win.parent.colist_modal.doEvent('/focusin-search-field/');
 						}
 						return func();
 					}
-
 					root.makeActive( $('.row[data-rpath="search_results"]'), true );
-					root.search_phrase = phrase;
+					root.search_phrase = sPhrase;
 
 					// abort previous ajax call
 					if (root.active_ajax) {
 						root.active_ajax.abort();
 						root.progress.abort();
 					}
-
 					// start progress bar
 					root.doEvent('/start-progress-bar/');
 
@@ -318,7 +369,7 @@
 						data: {
 							nonce  : colist_cfg.ajax_nonce,
 							action : 'colist/get_search_results',
-							phrase : phrase
+							phrase : sPhrase
 						},
 						success: function(data) {
 							//console.log( data.file.length );
@@ -373,14 +424,14 @@
 					var extra = [
 						{
 							'@rpath': 'recent_uploads',
-							'@name': 'Recent uploads',
+							'@name': 'Recent Uploads',
 							'@icon': 'cloud-upload',
 							'@order': '20',
 							'@action': '/recent-uploads/'
 						},
 						{
 							'@rpath': 'search_results',
-							'@name': 'Search results',
+							'@name': 'Search Results',
 							'@icon': 'search',
 							'@order': '30',
 							'@action': '/show-search-results/'
@@ -462,7 +513,7 @@
 							return;
 						}
 						if (oFile[0].file) {
-							root.doEvent('render-list-of-path', '//*[@rpath="'+ path +'"]');
+							root.doEvent('/render-list-of-path/', '//*[@rpath="'+ path +'"]');
 							root.doEvent('/focusin-active-column/');
 							return;
 						}
@@ -505,12 +556,19 @@
 							} else oFile[0].file = data.file;
 
 							setTimeout(function() {
-								root.doEvent('render-list-of-path', '//*[@rpath="'+ path +'"]');
+								root.doEvent('/render-list-of-path/', '//*[@rpath="'+ path +'"]');
 
 								// temp
 								//root.doEvent('/change-sorting/', 'name');
 								//root.doEvent('/show-search-results/', 'hansen');
-								//$('.row.hasChildren:nth(0)').trigger('click');
+								//console.log( $('.row:nth(6)') );
+								
+								setTimeout(function() {
+									if ($('.column').length === 1) {
+										//$('.row:nth(7) span').trigger('mousedown');
+										//root.doEvent('/delete-selected/');
+									}
+								}, 1);
 							}, 250);
 						}
 					});

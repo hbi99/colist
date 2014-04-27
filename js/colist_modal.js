@@ -11,7 +11,7 @@
 				iframe[0].contentWindow.colist.doEvent('/customize-parent-frame/');
 			}
 			$(document).on('click', '[data-cmd]', this.doEvent);
-			$(document).on('mousedown', '.extended', this.doEvent);
+			$(document).bind('mousedown', this.doEvent);
 
 			setTimeout(function() {
 				$('#insert-media-button').trigger('click');
@@ -34,6 +34,7 @@
 		doEvent: function(event) {
 			var root = colist_modal,
 				type = (typeof(event) === 'string')? event : event.type,
+				target,
 				el,
 				il, i;
 
@@ -41,20 +42,23 @@
 				// native events
 				case 'keydown':
 					if (event.which === 13) {
-						$('.media-iframe iframe')[0]
-							.contentWindow
-							.colist.doEvent('/show-search-results/', this.value);
+						root.getColist();
+						root.colist.doEvent('/show-search-results/', this.value);
 						event.preventDefault();
 						this.blur();
 					}
 					break;
 				case 'mousedown':
-					el = $(this);
+					target = event.target;
+					el = $( target.nodeName.toLowerCase() === 'figure' ? target.parentNode : target );
+					if (!target.getAttribute('data-cmd') && !target.parentNode.getAttribute('data-cmd')) {
+						root.hideSubmenu(true);
+					}
+
 					if (el.hasClass('extended')) {
 						event.preventDefault();
 
 						el.addClass('active');
-						root.hideSubmenu(true);
 						root.submenu = el.find('.submenu').show();
 
 						if (!root.submenu) {
@@ -83,8 +87,8 @@
 						isDir,
 						isMulti,
 						fileName = '',
-						fnEls    = $('.colist-toolbar .menu_filename'),
-						colist   = $('.media-iframe iframe')[0].contentWindow.colist;
+						toolbar  = $('.colist-toolbar'),
+						fnEls    = $('.menu_filename', toolbar);
 					for (i=0, il=selectInfo.length; i<il; i++) {
 						isDir = (selectInfo[i].extension.slice(0,1) === '_') || isDir;
 					}
@@ -93,14 +97,19 @@
 
 					root.hideSubmenu();
 
-					var selected_filename = colist.doEvent('/language-phrase/', 'selected_files');
-
+					// enable/disable toolbar & menu - depending on selection
 					if (isFile && !isDir) {
-						fnEls.parent().removeClass('hideMe');
+						fnEls.removeClass('hideMe');
+						$('.menu-use, .menu-delete', toolbar).removeClass('disabled');
 					} else {
-						fnEls.parent().addClass('hideMe');
+						fnEls.addClass('hideMe');
+						$('.menu-use, .menu-delete', toolbar).addClass('disabled');
 					}
-
+					if (isFile && !isDir && !isMulti) $('.menu-download, .menu-replace', toolbar).removeClass('disabled');
+					else $('.menu-download, .menu-replace', toolbar).addClass('disabled');
+					
+					root.getColist();
+					var selected_filename = root.colist.doEvent('/language-phrase/', 'selected_files');
 					if (isFile && !isMulti) {
 						selected_filename = selectInfo[0].filename;
 					}
@@ -110,41 +119,43 @@
 				case '/toggle-list-multi/':
 					el = arguments[1].find('figure');
 					var isExpand = el.hasClass('icon-expand'),
-						state    = isExpand ? 'collapse' : 'expand',
-						colist   = $('.media-iframe iframe')[0].contentWindow.colist;
+						tState   = isExpand ? 'collapse' : 'expand';
+
+					root.getColist();
 
 					// change icon
-					el.removeClass('icon-expand icon-collapse').addClass('icon-'+ state);
+					el.removeClass('icon-expand icon-collapse').addClass('icon-'+ tState);
 					// forward command
-					colist.doEvent('/attenuate-siblings/', (isExpand ? 'off' : 'on'));
+					root.colist.doEvent('/attenuate-siblings/', (isExpand ? 'off' : 'on'));
 					break;
 				case '/toggle-asc-desc/':
 					el = arguments[1].find('figure');
 					var isAsc  = el.hasClass('icon-sort-amount-asc'),
-						state  = isAsc ? 'desc' : 'asc',
-						colist = $('.media-iframe iframe')[0].contentWindow.colist;
+						state  = isAsc ? 'desc' : 'asc';
+
+					root.getColist();
 
 					// change icon
 					el.removeClass('icon-sort-amount-asc icon-sort-amount-desc').addClass('icon-sort-amount-'+ state);
 					// forward command
-					colist.doEvent('/toggle-sort-asc/', (isAsc ? 'descending' : 'ascending'));
+					root.colist.doEvent('/toggle-sort-asc/', (isAsc ? 'descending' : 'ascending'));
+					break;
+				case '/download-selected/':
+				case '/delete-selected/':
+					root.colist.doEvent(type);
 					break;
 				case '/upload-file/':
 					break;
-				case '/download-selected/':
+				case '/replace-selected/':
 					break;
-				case '/delete-selected/':
-					break;
-				case '/hide-selected/':
+				case '/colist-use-selected/':
 					break;
 				case '/view-refresh/':
 					$('.media-iframe iframe')[0].contentWindow.location.reload();
 					break;
-				case '/colist-use-selected/':
-					break;
 				case '/append-toolbar/':
 					var titleEl = $('.media-frame-title');
-					titleEl.find('.colist-toolbar').remove()
+					titleEl.find('.colist-toolbar').remove();
 					titleEl.append( arguments[1] );
 					// listening for 'return'
 					titleEl.find('input').bind('keydown', root.doEvent);
@@ -159,12 +170,16 @@
 					el.parents('.submenu').find('.checked').removeClass('checked');
 					el.addClass('checked');
 
-					var colist = $('.media-iframe iframe')[0].contentWindow.colist;
-					colist.doEvent('/change-sorting/', type.split('-')[2].slice(0,-1));
+					root.getColist();
+					root.colist.doEvent('/change-sorting/', type.split('-')[2].slice(0,-1));
 					break;
 				case '/about-colist/':
 					break;
 			}
+		},
+		getColist: function() {
+			this.colist = $('.media-iframe iframe')[0].contentWindow.colist;
+			return this.colist;
 		}
 	};
 

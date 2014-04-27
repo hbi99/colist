@@ -62,12 +62,14 @@ class Colist {
 		}
 
 		if ( is_admin() ) {
+			$upload_dir = wp_upload_dir();
 			//******** ajax nonce
 			$config = array(
-				'ajax_path'  => admin_url( 'admin-ajax.php' ),
-				'ajax_nonce' => esc_js( wp_create_nonce( 'colist_nonce') ),
-				'multisite'  => is_multisite() ? 1 : 0,
-				'sites'      => array()
+				'ajax_path'      => admin_url( 'admin-ajax.php' ),
+				'ajax_nonce'     => esc_js( wp_create_nonce( 'colist_nonce') ),
+				'uploads_folder' => site_url('/secrets/'),
+				'multisite'      => is_multisite() ? 1 : 0,
+				'sites'          => array()
 			);
 			//******** multisite info
 			$blogs = wp_get_sites( array(
@@ -94,6 +96,7 @@ class Colist {
 			add_action( 'wp_ajax_colist/get_network_shared', array( $this, 'Get_Network_Shared' ) );
 			add_action( 'wp_ajax_colist/get_file_contents',  array( $this, 'Get_File_Contents' ) );
 			add_action( 'wp_ajax_colist/get_search_results', array( $this, 'Get_Search_Results' ) );
+			add_action( 'wp_ajax_colist/delete_files',       array( $this, 'Delete_Files' ) );
 
 			//******** filters
 			add_filter( 'media_upload_tabs', array( $this, 'Add_Tab' ), 10, 1 );
@@ -247,6 +250,51 @@ class Colist {
 
 		// exit properly - ajax call
 		die( 1 );
+	}
+
+	function Delete_Files() {
+		// check nonce
+		if ( !wp_verify_nonce( $_POST['nonce'], 'colist_nonce' ) ) die( -1 );
+		// check if logged in
+		if ( !is_admin() ) die( -1 );
+		
+		$files = $_REQUEST['files'];
+		foreach( $files as $file ) {
+			$attechmentId = $this->get_attachment_id_by_url( $file );
+			if ( $attechmentId ) {
+				// remove with WP function
+			} else {
+				// item only exists in FS, remove
+				$path = parse_url( $file, PHP_URL_PATH );
+				unlink( $_SERVER['DOCUMENT_ROOT'] . $path );
+			}
+		}
+
+		// exit properly - ajax call
+		die( 1 );
+	}
+
+	function get_attachment_id_by_url( $url ) {
+		global $wpdb;
+
+		// Split the $url into two parts with the wp-content directory as the separator.
+		$parse_url = explode( parse_url( WP_CONTENT_URL, PHP_URL_PATH ), $url );
+
+		// Get the host of the current site and the host of the $url, ignoring www.
+		$this_host = str_ireplace( 'www.', '', parse_url( home_url(), PHP_URL_HOST ) );
+		$file_host = str_ireplace( 'www.', '', parse_url( $url, PHP_URL_HOST ) );
+
+		// Return nothing if there aren't any $url parts or if the current host and $url host do not match.
+		if ( ! isset( $parse_url[1] ) || empty( $parse_url[1] ) || ( $this_host != $file_host ) ) {
+			return;
+		}
+
+		// Now we're going to quickly search the DB for any attachment GUID with a partial path match.
+		// Example: /uploads/2013/05/test-image.jpg
+		$attachment = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->prefix}posts WHERE guid RLIKE %s;", $parse_url[1] ) );
+
+		// Returns null if no attachment is found.
+		return $attachment[0];
 	}
 
 	function Loop_Object( $root_path, $records ) {

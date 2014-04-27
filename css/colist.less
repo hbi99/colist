@@ -216,19 +216,20 @@ body {
 				left: 3px;
 				width: 47px;
 				height: 9px;
+				margin-right: 3px;
 				overflow: hidden;
 				border: 1px solid rgba(0,0,0,0.15);
 				border-radius: 5px;
 
-				&:after {
-					content: '';
+				.bar {
 					background: #fff;
 					position: absolute;
 					top: 0px;
 					left: 0px;
 					bottom: 0px;
-					width: 37%;
+					width: 1%;
 					border-radius: 4px 0px 0px 4px;
+					.transitionWhat( width, 223ms );
 				}
 			}
 		}
@@ -246,6 +247,7 @@ body {
 			right: 0px;
 			bottom: 0px;
 			margin: 0px 0px 1px 0px;
+			padding: 1px;
 			overflow: scroll;
 			border: #ddd 1px solid;
 			border-radius: 2px;

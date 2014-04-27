@@ -243,6 +243,9 @@
   cursor: default;
   color: #bbb;
 }
+.colist-toolbar .submenu li.disabled .menu_filename {
+  color: inherit;
+}
 .colist-toolbar .submenu li.divider {
   height: 1px;
   background: #e2e2e2;

@@ -30,7 +30,7 @@ wp_enqueue_script( array( 'colist-admin_script' ) );
 			<ul class="colist-group">
 				<li data-cmd="/view-refresh/" title="Refresh"><figure class="icon-rotate-left">&#160;</figure></li>
 				<li data-cmd="/toggle-list-multi/" title="Toggle image siblings"><figure class="icon-expand">&#160;</figure></li>
-				<li data-cmd="/colist-use-selected/" title="Embed on page" class="disabled"><figure class="icon-check">&#160;</figure></li>
+				<li data-cmd="/colist-use-selected/" title="Embed on page" class="menu-use disabled"><figure class="icon-check">&#160;</figure></li>
 			</ul>
 			<ul class="colist-group">
 				<li data-cmd="/toggle-asc-desc/" title="Toggle Ascending"><figure class="icon-sort-amount-asc">&#160;</figure></li>
@@ -47,11 +47,12 @@ wp_enqueue_script( array( 'colist-admin_script' ) );
 			</ul>
 			<ul class="colist-group">
 				<li class="extended"><figure class="icon-gear" title="Settings">&#160;</figure>
-					<ul class="submenu" title="">
+					<ul class="submenu">
 						<li data-cmd="/upload-file/">Upload files</li>
-						<li data-cmd="/download-selected/" class="hideMe">Download "<span class="menu_filename">&#160;</span>"</li>
-						<li data-cmd="/delete-selected/" class="hideMe">Delete "<span class="menu_filename">&#160;</span>"</li>
-						<li data-cmd="/replace-selected/" class="hideMe">Replace "<span class="menu_filename">&#160;</span>"</li>
+						<li class="divider"></li>
+						<li data-cmd="/download-selected/" class="menu-download disabled">Download <span class="menu_filename">&#160;</span></li>
+						<li data-cmd="/delete-selected/" class="menu-delete disabled">Delete <span class="menu_filename">&#160;</span></li>
+						<li data-cmd="/replace-selected/" class="menu-replace disabled">Replace <span class="menu_filename">&#160;</span></li>
 						<li class="divider"></li>
 						<li data-cmd="/about-colist/">About Colist</li>
 					</ul>

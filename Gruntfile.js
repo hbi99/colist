@@ -11,7 +11,7 @@ module.exports = function (grunt) {
 						' * <%= pkg.name %>.js v<%= pkg.version %> \n' +
 						' * <%= pkg.repository.url %> \n' +
 						' */ \n',
-			source    : ['js/colist.js']
+			source    : ['js/colist.js', 'js/colist_modal.js']
 		},
 
 		// JShint this version
