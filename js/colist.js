@@ -138,7 +138,7 @@
 						oFile = JSON.search( root.ledger, '//*[@rpath="'+ xPath +'"]' );
 						files.push( domain + oFile[0]['@path'] );
 					}
-					
+
 					selEl.parents('.content').trigger('mousedown');
 
 					setTimeout(function() {
@@ -155,9 +155,9 @@
 							files  : files
 						},
 						success: function(data) {
+							//console.log( data );
 							// finish progressbar
 							selEl.find('.processing .bar').css({'width': '100%'});
-							console.log( data );
 							
 							setTimeout(function() {
 								selEl.fadeOut(241, function() {

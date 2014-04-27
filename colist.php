@@ -257,12 +257,13 @@ class Colist {
 		if ( !wp_verify_nonce( $_POST['nonce'], 'colist_nonce' ) ) die( -1 );
 		// check if logged in
 		if ( !is_admin() ) die( -1 );
-		
+
 		$files = $_REQUEST['files'];
 		foreach( $files as $file ) {
 			$attechmentId = $this->get_attachment_id_by_url( $file );
 			if ( $attechmentId ) {
 				// remove with WP function
+				wp_delete_attachment( $attechmentId, true );
 			} else {
 				// item only exists in FS, remove
 				$path = parse_url( $file, PHP_URL_PATH );
