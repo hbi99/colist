@@ -228,25 +228,6 @@
 						}
 					}
 					break;
-				case '/initiate-multisite/':
-					var sites = colist_cfg.sites;
-					rows = [];
-
-					if (!sites.length) return;
-
-					for (i=0, il=sites.length; i<il; i++) {
-						rows.push({
-							'@rpath': 'site-'+ sites[i]['@rpath'],
-							'@name': sites[i]['@name'],
-							'@extension': '_web',
-							'@action': '/get-network-shared/'
-						});
-					}
-
-					xPath = '//*[@rpath="network_shared"]';
-					oFile = JSON.search(root.ledger, xPath);
-					oFile[0].file = rows;
-					break;
 				case '/get-network-shared/':
 					var siteid = root.active.attr('data-rpath');
 					func = function() {
@@ -289,6 +270,13 @@
 					root.reel.append( root.defiant.render({
 						'template': 'column',
 						'match': '//*[@rpath="network_shared"]',
+						'data': root.ledger
+					}) );
+					break;
+				case '/file-tags/':
+					root.reel.append( root.defiant.render({
+						'template': 'column',
+						'match': '//*[@rpath="file_tags"]',
 						'data': root.ledger
 					}) );
 					break;
@@ -420,37 +408,6 @@
 						root.el.stop().animate({scrollLeft: oldCol[0].offsetLeft - 20}, 800);
 					}
 					break;
-				case '/get-extra-options/':
-					var extra = [
-						{
-							'@rpath': 'recent_uploads',
-							'@name': 'Recent Uploads',
-							'@icon': 'cloud-upload',
-							'@order': '20',
-							'@action': '/recent-uploads/'
-						},
-						{
-							'@rpath': 'search_results',
-							'@name': 'Search Results',
-							'@icon': 'search',
-							'@order': '30',
-							'@action': '/show-search-results/'
-						},
-						{
-							'@type': 'divider',
-							'@order': '99'
-						}
-					];
-					if (colist_cfg.multisite) {
-						extra.push({
-							'@rpath': 'network_shared',
-							'@name': 'Network Shared Media',
-							'@icon': 'globe',
-							'@order': '10',
-							'@action': '/network-shared/'
-						});
-					}
-					return extra;
 				case '/get-active-item/':
 					if (root.active) {
 						thisCol = root.active.parents('.column');
@@ -548,11 +505,8 @@
 
 							// store json data
 							if (!root.ledger) {
-								data.options = root.doEvent('/get-extra-options/');
+								data.options = colist_cfg.options;
 								root.ledger = data;
-
-								// prepare network shared media
-								root.doEvent('/initiate-multisite/');
 							} else oFile[0].file = data.file;
 
 							setTimeout(function() {

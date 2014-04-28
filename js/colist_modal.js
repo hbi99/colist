@@ -90,6 +90,7 @@
 						toolbar  = $('.colist-toolbar'),
 						fnEls    = $('.menu_filename', toolbar);
 					for (i=0, il=selectInfo.length; i<il; i++) {
+						if (selectInfo[i].extension === '') isDir = true;
 						isDir = (selectInfo[i].extension.slice(0,1) === '_') || isDir;
 					}
 					isFile = il > 0;

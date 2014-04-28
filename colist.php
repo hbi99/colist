@@ -61,27 +61,20 @@ class Colist {
 			wp_register_style( $handle, $src, false, $this->settings['version'] );
 		}
 
+		//******** register tags to attachments
+		register_taxonomy_for_object_type( 'post_tag', 'attachment' );
+
 		if ( is_admin() ) {
 			$upload_dir = wp_upload_dir();
 			//******** ajax nonce
 			$config = array(
 				'ajax_path'      => admin_url( 'admin-ajax.php' ),
 				'ajax_nonce'     => esc_js( wp_create_nonce( 'colist_nonce') ),
-				'uploads_folder' => site_url('/secrets/'),
-				'multisite'      => is_multisite() ? 1 : 0,
-				'sites'          => array()
+				//'uploads_folder' => site_url('/secrets/'),
+				//'multisite'      => is_multisite() ? 1 : 0,
+				//'sites'          => array(),
+				'options'        => $this->Get_Extras()
 			);
-			//******** multisite info
-			$blogs = wp_get_sites( array(
-				'network_id' => $wpdb->siteid
-			) );
-			foreach ( $blogs as $blog ) {
-				$blog = array(
-					'@rpath'     => $blog['blog_id'],
-					'@name'      => get_blog_option( $blog['blog_id'], 'blogname' )
-				);
-				array_push( $config['sites'], $blog );
-			}
 			//******** output config
 			wp_localize_script( 'colist-admin_script',  'colist_cfg', $config );
 
@@ -117,6 +110,76 @@ class Colist {
 
 	function Create_View() {
         include_once( 'views/index.php' );
+	}
+
+	function Get_Extras() {
+		//******** populate tags list
+		$tag_arr = array();
+		$tags = get_tags( array( 'get' => 'all' ) );
+		foreach( $tags as $tag ) {
+			array_push( $tag_arr, array(
+				'@rpath'     => 'tag-'. $tag->name,
+				'@icon'       => 'tag',
+				'@action'    => '/get-tagged-files/',
+				'@name'      => $tag->name
+			) );
+		}
+
+		$ret = array(
+			array(
+				'@rpath'  => 'file_tags',
+				'@name'   => 'Tags',
+				'@icon'   => 'tags',
+				'@order'  => '20',
+				'@action' => '/file-tags/',
+				'file'    => $tag_arr
+			),
+			array(
+				'@rpath'  => 'recent_uploads',
+				'@name'   => 'Recent Uploads',
+				'@icon'   => 'cloud-upload',
+				'@order'  => '30',
+				'@action' => '/recent-uploads/'
+			),
+			array(
+				'@rpath'  => 'search_results',
+				'@name'   => 'Search Results',
+				'@icon'   => 'search',
+				'@order'  => '40',
+				'@action' => '/show-search-results/'
+			),
+			array(
+				'@type'   => 'divider',
+				'@order'  => '99'
+			),
+		);
+
+		//******** multisite info
+		if ( is_multisite() ) {
+			$sites = array();
+			$blogs = wp_get_sites( array(
+				'network_id' => $wpdb->siteid
+			) );
+			foreach ( $blogs as $blog ) {
+				$blog = array(
+					'@rpath'     => 'site-'. $blog['blog_id'],
+					'@extension' => '_web',
+					'@action'    => '/get-network-shared/',
+					'@name'      => get_blog_option( $blog['blog_id'], 'blogname' )
+				);
+				array_push( $sites, $blog );
+			}
+
+			array_push( $ret, array(
+				'@rpath'  => 'network_shared',
+				'@name'   => 'Network Shared Media',
+				'@icon'   => 'globe',
+				'@order'  => '10',
+				'@action' => '/network-shared/',
+				'file'    => $sites
+			) );
+		}
+		return $ret;
 	}
 
 	function Get_Folder_List() {
