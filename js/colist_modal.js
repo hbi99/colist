@@ -13,6 +13,8 @@
 			$(document).on('click', '[data-cmd]', this.doEvent);
 			$(document).bind('mousedown', this.doEvent);
 
+			this.opener = win.dialogArguments || opener || parent || top;
+			/*
 			setTimeout(function() {
 				$('#insert-media-button').trigger('click');
 
@@ -20,6 +22,7 @@
 					$('.media-menu-item:nth(6)').trigger('click');
 				}, 500);
 			}, 100);
+			*/
 		},
 		hideSubmenu: function(doUnbind) {
 			var root = colist_modal;
@@ -81,6 +84,27 @@
 						$('.colist-toolbar input').focus();
 					}, 1);
 					break;
+				case '/colist-use-selected/':
+					var htm = '',
+						files = root.selectInfo;
+
+					for (i=0, il=files.length; i<il; i++) {
+						switch (files[i].extension) {
+							case 'pdf':
+								htm += '<a href="'+ files[i].path +'">'+ files[i].name +'</a>';
+								break;
+							case 'png':
+							case 'gif':
+							case 'jpg':
+							case 'jpeg':
+								htm += '<img src="'+ files[i].path +'" alt="" width="'+ files[i].width +'" height="'+ files[i].height +' />';
+								break;
+						}
+					}
+					root.opener.send_to_editor(htm);
+					// reset colist
+					root.colist.doEvent('/reset-colist/');
+					break;
 				case '/file-selected/':
 					var selectInfo = arguments[1] || [],
 						isFile,
@@ -96,6 +120,8 @@
 					isFile = il > 0;
 					isMulti = il > 1;
 
+					root.selectInfo = selectInfo;
+					//root.doEvent('/colist-use-selected/');
 					root.hideSubmenu();
 
 					// enable/disable toolbar & menu - depending on selection
@@ -148,8 +174,6 @@
 				case '/upload-file/':
 					break;
 				case '/replace-selected/':
-					break;
-				case '/colist-use-selected/':
 					break;
 				case '/view-refresh/':
 					$('.media-iframe iframe')[0].contentWindow.location.reload();
