@@ -23,9 +23,9 @@
 				}
 			}
 			// fast track initiate Defiant
-			Defiant.gather_templates();
+			this.defiant.gather_templates();
 			// store xsl sorter
-			this.xsl_sorter = this.defiant.xsl_template.selectSingleNode('//*[@name="rows"]//xsl:sort[@select="@extension"]');
+			this.xsl_sorter = Defiant.node.selectSingleNode(Defiant.xsl_template, '//*[@name="rows"]//xsl:sort[@select="@extension"]');
 			// turn on attentuation
 			this.doEvent('/attenuate-siblings/', 'on');
 			// append toolbar
@@ -116,9 +116,6 @@
 					}
 					break;
 				// custom events
-				case '/reset-colist/':
-					root.reel.find('.content').trigger('mousedown');
-					break;
 				case '/download-selected/':
 					domain = document.location.protocol +'//'+ document.location.host;
 					path = root.activeCol.attr('data-rpath') +'/'+ root.active.find('.filename').text();
@@ -562,33 +559,19 @@
 				this.doEvent('/get-active-item/');
 			}
 			// assemble selected file info
-			var ledger  = this.ledger,
-				actives = this.activeCol.find('.row.active'),
+			var actives = this.activeCol.find('.row.active'),
 				select_info = [],
 				il = actives.length,
 				i = 0,
 				filename,
-				extension,
-				path,
-				file,
 				el;
 			for (; i<il; i++) {
 				el = $(actives[i]);
 				filename = el.find('.filename').text();
-				extension = el.find('figure').attr('data-extension');
-				if (!extension || extension.slice(0,1) === '_') continue;
-				
-				path = el.parents('.column').attr('data-rpath') +'/'+ filename;
-				file = JSON.search( ledger, '//*[@rpath="'+ path +'"]' );
-
 				select_info.push({
-					// todo
-					//'name'     : filename,
-					'filename' : filename,
-					'extension': extension,
-					'path'     : file[0]['@path'],
-					'width'    : file[0]['@width'],
-					'height'   : file[0]['@height']
+					'extension': el.find('figure').attr('data-extension'),
+					'filename': filename,
+					'path': el.parents('.column').attr('data-rpath') +'/'+ filename
 				});
 			}
 			win.parent.colist_modal.doEvent('/file-selected/', select_info);
@@ -707,3 +690,5 @@
 	});
 
 })(window, document, jQuery);
+
+// I really dont like Backbone

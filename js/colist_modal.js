@@ -13,15 +13,26 @@
 			$(document).on('click', '[data-cmd]', this.doEvent);
 			$(document).bind('mousedown', this.doEvent);
 
-			this.opener = win.dialogArguments || opener || parent || top;
 			/*
-			setTimeout(function() {
-				$('#insert-media-button').trigger('click');
+			// regular insert media
+			$(document).on('click', '.insert-media', function( event ) {
+			    $('.media-menu .media-menu-item').each(function() {
+			    	if (this.innerHTML !== 'Colist') return;
+			    	$(this).trigger('click');
+			    });
+			});
 
-				setTimeout(function() {
-					$('.media-menu-item:nth(6)').trigger('click');
-				}, 500);
-			}, 100);
+			// acf insert media
+			$(document).on('click', '.acf-image-uploader .add-image', function( event ) {
+				var media_frame = $('.media-frame.wp-core-ui.hide-menu'),
+					media_modal = $('.media-modal.wp-core-ui', media_frame),
+					media_content = $('.media-frame-content', media_frame),
+					media_title = $('.media-frame-title h1', media_frame);
+
+				media_frame.addClass('hide-router');
+				media_title.html('Colist');
+				media_content.html('<div class="media-iframe"><iframe src="http://local.glasberga/wp-admin/media-upload.php?chromeless=1&amp;post_id=77&amp;tab=colistframe"></iframe></div>');
+			});
 			*/
 		},
 		hideSubmenu: function(doUnbind) {
@@ -84,27 +95,6 @@
 						$('.colist-toolbar input').focus();
 					}, 1);
 					break;
-				case '/colist-use-selected/':
-					var htm = '',
-						files = root.selectInfo;
-
-					for (i=0, il=files.length; i<il; i++) {
-						switch (files[i].extension) {
-							case 'pdf':
-								htm += '<a href="'+ files[i].path +'">'+ files[i].name +'</a>';
-								break;
-							case 'png':
-							case 'gif':
-							case 'jpg':
-							case 'jpeg':
-								htm += '<img src="'+ files[i].path +'" alt="" width="'+ files[i].width +'" height="'+ files[i].height +' />';
-								break;
-						}
-					}
-					root.opener.send_to_editor(htm);
-					// reset colist
-					root.colist.doEvent('/reset-colist/');
-					break;
 				case '/file-selected/':
 					var selectInfo = arguments[1] || [],
 						isFile,
@@ -120,8 +110,6 @@
 					isFile = il > 0;
 					isMulti = il > 1;
 
-					root.selectInfo = selectInfo;
-					//root.doEvent('/colist-use-selected/');
 					root.hideSubmenu();
 
 					// enable/disable toolbar & menu - depending on selection
@@ -175,6 +163,8 @@
 					break;
 				case '/replace-selected/':
 					break;
+				case '/colist-use-selected/':
+					break;
 				case '/view-refresh/':
 					$('.media-iframe iframe')[0].contentWindow.location.reload();
 					break;
@@ -184,6 +174,8 @@
 					titleEl.append( arguments[1] );
 					// listening for 'return'
 					titleEl.find('input').bind('keydown', root.doEvent);
+					// show wp toolbar
+					$('.media-frame.wp-core-ui').removeClass('hide-toolbar');
 					break;
 				// menu events
 				case '/order-by-name/':
@@ -216,3 +208,5 @@
 	});
 
 })(window, document, jQuery);
+
+// I really dont like Backbone
