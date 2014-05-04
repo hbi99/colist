@@ -23,7 +23,9 @@ class Colist {
 			'img_types' => array( 'png', 'jpg', 'jpeg', 'gif' ),
 		);
 		
-		add_action( 'init', array( $this, 'Init' ), 1 );
+		if ( is_admin() ) {
+			add_action( 'init', array( $this, 'Init' ), 1 );
+		}
 	}
 
 	function __destruct( ) {
@@ -62,41 +64,40 @@ class Colist {
 		}
 
 		//******** register tags to attachments
-		register_taxonomy_for_object_type( 'post_tag', 'attachment' );
-
-		if ( is_admin() ) {
-			$upload_dir = wp_upload_dir();
-			//******** ajax nonce
-			$config = array(
-				'ajax_path'      => admin_url( 'admin-ajax.php' ),
-				'ajax_nonce'     => esc_js( wp_create_nonce( 'colist_nonce') ),
-				//'uploads_folder' => site_url('/secrets/'),
-				//'multisite'      => is_multisite() ? 1 : 0,
-				//'sites'          => array(),
-				'options'        => $this->Get_Extras()
-			);
-			//******** output config
-			wp_localize_script( 'colist-admin_script',  'colist_cfg', $config );
+		//register_taxonomy_for_object_type( 'post_tag', 'attachment' );
 
 
-			//******** modal dialog customize
-			wp_enqueue_style( array( 'colist-modal_style' ) );
-			wp_enqueue_script( array( 'colist-modal_script' ) );
+		$upload_dir = wp_upload_dir();
+		//******** ajax nonce
+		$config = array(
+			'ajax_path'      => admin_url( 'admin-ajax.php' ),
+			'ajax_nonce'     => esc_js( wp_create_nonce( 'colist_nonce') ),
+			//'uploads_folder' => site_url('/secrets/'),
+			//'multisite'      => is_multisite() ? 1 : 0,
+			//'sites'          => array(),
+			'options'        => $this->Get_Extras()
+		);
+		//******** output config
+		wp_localize_script( 'colist-admin_script',  'colist_cfg', $config );
 
-			//******** ajax
-			add_action( 'wp_ajax_colist/get_folder_list',    array( $this, 'Get_Folder_List' ) );
-			add_action( 'wp_ajax_colist/get_recent_uploads', array( $this, 'Get_Recent_Uploads' ) );
-			add_action( 'wp_ajax_colist/get_network_shared', array( $this, 'Get_Network_Shared' ) );
-			add_action( 'wp_ajax_colist/get_file_contents',  array( $this, 'Get_File_Contents' ) );
-			add_action( 'wp_ajax_colist/get_search_results', array( $this, 'Get_Search_Results' ) );
-			add_action( 'wp_ajax_colist/delete_files',       array( $this, 'Delete_Files' ) );
 
-			//******** filters
-			add_filter( 'media_upload_tabs', array( $this, 'Add_Tab' ), 10, 1 );
-			
-			//******** actions
-			add_action( 'media_upload_colistframe', array( $this, 'Add_Iframe' ) );
-		}
+		//******** modal dialog customize
+		wp_enqueue_style( array( 'colist-modal_style' ) );
+		wp_enqueue_script( array( 'colist-modal_script' ) );
+
+		//******** ajax
+		add_action( 'wp_ajax_colist/get_folder_list',    array( $this, 'Get_Folder_List' ),    0 );
+		add_action( 'wp_ajax_colist/get_recent_uploads', array( $this, 'Get_Recent_Uploads' ), 0 );
+		add_action( 'wp_ajax_colist/get_network_shared', array( $this, 'Get_Network_Shared' ), 0 );
+		add_action( 'wp_ajax_colist/get_file_contents',  array( $this, 'Get_File_Contents' ),  0 );
+		add_action( 'wp_ajax_colist/get_search_results', array( $this, 'Get_Search_Results' ), 0 );
+		add_action( 'wp_ajax_colist/delete_files',       array( $this, 'Delete_Files' ),       0 );
+
+		//******** filters
+		add_filter( 'media_upload_tabs', array( $this, 'Add_Tab' ), 10, 1 );
+		
+		//******** actions
+		add_action( 'media_upload_colistframe', array( $this, 'Add_Iframe' ) );
 	}
 
 	function Add_Tab( $tabs ) {
