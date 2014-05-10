@@ -5,7 +5,7 @@ media_upload_header();
 wp_enqueue_style( 'media' );
 
 // scripts
-wp_enqueue_style( array( 'colist-admin_style' ) );
+wp_enqueue_style( array( 'colist-frame_style' ) );
 wp_enqueue_script( array( 'colist-admin_script' ) );
 
 ?>

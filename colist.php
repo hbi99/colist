@@ -15,7 +15,7 @@ class Colist {
 		//******** settings
 		$this->settings = array(
 			'ns'        => 'Colist',
-			'version'   => '0.1',
+			'version'   => '0.2',
 			'path'      => plugin_dir_url( __FILE__ ),
 			'dir'       => plugin_dir_path( __FILE__ ),
 			'uploads'   => '/uploads',
@@ -35,18 +35,21 @@ class Colist {
 	function Init( ) {
 		global $wpdb;
 
+		// min
+		$min = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
+
 		//******** scripts
 		$this->scripts = array(
 			array(  'handle' => 'defiant',
-					'src'    => $this->settings['path'] . 'js/defiant.js',
+					'src'    => $this->settings['path'] . "js/defiant{$min}.js",
 					'deps'   => ''
 			),
 			array(  'handle' => 'colist-admin_script',
-					'src'    => $this->settings['path'] . 'js/colist.js',
+					'src'    => $this->settings['path'] . 'js/colist_frame.js',
 					'deps'   => array( 'defiant', 'jquery' )
 			),
 			array(  'handle' => 'colist-modal_script',
-					'src'    => $this->settings['path'] . 'js/colist_modal.js',
+					'src'    => $this->settings['path'] . 'js/colist.js',
 					'deps'   => array( 'jquery' )
 			),
 		);
@@ -56,8 +59,8 @@ class Colist {
 
 		//******** styles
 		$this->styles = array(
-			'colist-modal_style' => $this->settings['path'] . 'css/colist_modal.css',
-			'colist-admin_style' => $this->settings['path'] . 'css/colist.css',
+			'colist-modal_style' => $this->settings['path'] . 'css/colist.css',
+			'colist-frame_style' => $this->settings['path'] . 'css/colist_frame.css',
 		);
 		foreach( $this->styles as $handle => $src ) {
 			wp_register_style( $handle, $src, false, $this->settings['version'] );
@@ -128,14 +131,6 @@ class Colist {
 
 		$ret = array(
 			array(
-				'@rpath'  => 'file_tags',
-				'@name'   => 'Tags',
-				'@icon'   => 'tags',
-				'@order'  => '20',
-				'@action' => '/file-tags/',
-				'file'    => $tag_arr
-			),
-			array(
 				'@rpath'  => 'recent_uploads',
 				'@name'   => 'Recent Uploads',
 				'@icon'   => 'cloud-upload',
@@ -191,6 +186,8 @@ class Colist {
 
 		// prepare response
 		$res = array();
+		// used later to serve paths
+		$real_root = realpath( $_SERVER['DOCUMENT_ROOT'] );
 
 		// set path
 		$path = isset( $_REQUEST['path'] )? $_REQUEST['path'] : '';
@@ -210,7 +207,7 @@ class Colist {
 				'@modified'  => date ( 'Y-m-d H:i:s', filemtime( $item_path ) ),
 			);
 			if ( !$is_dir ) {
-				$ofile['@path'] = str_replace( $_SERVER['DOCUMENT_ROOT'], '', $item_path );
+				$ofile['@path'] = str_replace( $real_root, '', $item_path );
 			}
 			if ( in_array( $ofile['@extension'], $this->settings['img_types'] ) ) {
 				list( $ofile['@width'], $ofile['@height'] ) = getimagesize( $item_path );
