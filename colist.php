@@ -1,31 +1,40 @@
 <?php
-/**
- * Plugin Name: Colist
- * Plugin URI: 
- * Description: 
- * Version: 0.1
- * Author: Hakan Bilgin
- * Author URI:
- * License: GPLv2 or later
- */
+/*
+Plugin Name: Colist
+Plugin URI: http://
+Description: 
+Version: 0.3
+Author: Hakan Bilgin
+Author URI:
+License: GPLv2 or later
+Text Domain: colist
+Domain Path: /lang
+*/
 
 class Colist {
 
 	function __construct( ) {
+
+		if ( !is_admin() ) return;
+
+		//******** helpers
+		add_filter( 'colist/get_path', array( $this, 'get_path' ), 1, 1 );
+		add_filter( 'colist/get_dir', array( $this, 'get_dir' ), 1, 1 );
+
 		//******** settings
 		$this->settings = array(
 			'ns'        => 'Colist',
 			'version'   => '0.2',
-			'path'      => plugin_dir_url( __FILE__ ),
-			'dir'       => plugin_dir_path( __FILE__ ),
+			'path'      => apply_filters( 'colist/get_path', __FILE__ ),
+			'dir'       => apply_filters( 'colist/get_dir', __FILE__ ),
+			'basename'  => dirname( plugin_basename( __FILE__ ) ),
 			'uploads'   => '/uploads',
 			'ignore'    => array( '.', '..', '.DS_Store' ),
 			'img_types' => array( 'png', 'jpg', 'jpeg', 'gif' ),
 		);
-		
-		if ( is_admin() ) {
-			add_action( 'init', array( $this, 'Init' ), 1 );
-		}
+
+		add_action( 'init', array( $this, 'Init' ), 1 );
+
 	}
 
 	function __destruct( ) {
@@ -33,7 +42,6 @@ class Colist {
 	}
 
 	function Init( ) {
-		global $wpdb;
 
 		// min
 		$min = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
@@ -41,15 +49,15 @@ class Colist {
 		//******** scripts
 		$this->scripts = array(
 			array(  'handle' => 'defiant',
-					'src'    => $this->settings['path'] . "js/defiant{$min}.js",
+					'src'    => $this->settings['dir'] . "js/defiant{$min}.js",
 					'deps'   => ''
 			),
 			array(  'handle' => 'colist-admin_script',
-					'src'    => $this->settings['path'] . 'js/colist_frame.js',
+					'src'    => $this->settings['dir'] . "js/colist_frame.js",
 					'deps'   => array( 'defiant', 'jquery' )
 			),
 			array(  'handle' => 'colist-modal_script',
-					'src'    => $this->settings['path'] . 'js/colist.js',
+					'src'    => $this->settings['dir'] . "js/colist.js",
 					'deps'   => array( 'jquery' )
 			),
 		);
@@ -59,8 +67,8 @@ class Colist {
 
 		//******** styles
 		$this->styles = array(
-			'colist-modal_style' => $this->settings['path'] . 'css/colist.css',
-			'colist-frame_style' => $this->settings['path'] . 'css/colist_frame.css',
+			'colist-modal_style' => $this->settings['dir'] . 'css/colist.css',
+			'colist-frame_style' => $this->settings['dir'] . 'css/colist_frame.css',
 		);
 		foreach( $this->styles as $handle => $src ) {
 			wp_register_style( $handle, $src, false, $this->settings['version'] );
@@ -75,9 +83,7 @@ class Colist {
 		$config = array(
 			'ajax_path'      => admin_url( 'admin-ajax.php' ),
 			'ajax_nonce'     => esc_js( wp_create_nonce( 'colist_nonce') ),
-			//'uploads_folder' => site_url('/secrets/'),
-			//'multisite'      => is_multisite() ? 1 : 0,
-			//'sites'          => array(),
+			//'uploads_folder' => site_url('/uploads/'),
 			'options'        => $this->Get_Extras()
 		);
 		//******** output config
@@ -88,6 +94,16 @@ class Colist {
 		wp_enqueue_style( array( 'colist-modal_style' ) );
 		wp_enqueue_script( array( 'colist-modal_script' ) );
 
+
+		//******** set text domain
+		load_plugin_textdomain( 'colist', false, $this->settings['basename'] . '/lang/' ); 
+
+		//******** filters
+		add_filter( 'media_upload_tabs', array( $this, 'Add_Tab' ), 10, 1 );
+		
+		//******** actions
+		add_action( 'media_upload_colistframe', array( $this, 'Add_Iframe' ) );
+
 		//******** ajax
 		add_action( 'wp_ajax_colist/get_folder_list',    array( $this, 'Get_Folder_List' ),    0 );
 		add_action( 'wp_ajax_colist/get_recent_uploads', array( $this, 'Get_Recent_Uploads' ), 0 );
@@ -95,17 +111,11 @@ class Colist {
 		add_action( 'wp_ajax_colist/get_file_contents',  array( $this, 'Get_File_Contents' ),  0 );
 		add_action( 'wp_ajax_colist/get_search_results', array( $this, 'Get_Search_Results' ), 0 );
 		add_action( 'wp_ajax_colist/delete_files',       array( $this, 'Delete_Files' ),       0 );
-
-		//******** filters
-		add_filter( 'media_upload_tabs', array( $this, 'Add_Tab' ), 10, 1 );
-		
-		//******** actions
-		add_action( 'media_upload_colistframe', array( $this, 'Add_Iframe' ) );
 	}
 
 	function Add_Tab( $tabs ) {
 		$new_tab = array( 'colistframe' => 'Colist' );
-        return array_merge( $tabs, $new_tab );
+		return array_merge( $tabs, $new_tab );
 	}
 
 	function Add_Iframe() {
@@ -113,7 +123,7 @@ class Colist {
 	}
 
 	function Create_View() {
-        include_once( 'views/index.php' );
+		include_once( 'views/index.php' );
 	}
 
 	function Get_Extras() {
@@ -131,15 +141,22 @@ class Colist {
 
 		$ret = array(
 			array(
+				'@rpath'  => 'folders',
+				'@name'   => 'Folders',
+				'@icon'   => 'folder',
+				'@order'  => '20',
+				'@action' => '/recent-uploads/'
+			),
+			array(
 				'@rpath'  => 'recent_uploads',
-				'@name'   => 'Recent Uploads',
+				'@name'   => __('Recent Uploads', 'colist'),
 				'@icon'   => 'cloud-upload',
 				'@order'  => '30',
 				'@action' => '/recent-uploads/'
 			),
 			array(
 				'@rpath'  => 'search_results',
-				'@name'   => 'Search Results',
+				'@name'   => __('Search Results', 'colist'),
 				'@icon'   => 'search',
 				'@order'  => '40',
 				'@action' => '/show-search-results/'
@@ -290,9 +307,14 @@ class Colist {
 		$current_blog_id = get_current_blog_id();
 
 		$res = array();
-		$blog_list = get_blog_list( 0, 'all' );
+		if ( function_exists('wp_get_sites') ) {
+			$blog_list = wp_get_sites( array( 'network_id' => $wpdb->siteid ) );
+		} else {
+			$blog_list = array( array( 'blog_id' => $wpdb->siteid ) );
+		}
+
 		foreach ( $blog_list as $blog ) {
-			switch_to_blog( $blog['blog_id'] );
+			if ( count( $blog_list ) > 1 ) switch_to_blog( $blog['blog_id'] );
 			$found  = get_posts( array(
 				'post_type'      => 'attachment',
 				'posts_per_page' => -1,
@@ -301,7 +323,7 @@ class Colist {
 			$res = array_merge( $res, $this->Loop_Object( 'search_results', $found ) );
 		}
 		// restore blog id
-		switch_to_blog( $current_blog_id );
+		if ( count( $blog_list ) > 1 ) switch_to_blog( $current_blog_id );
 
 		echo json_encode( array(
 			'@rpath'  => 'search_results',
@@ -383,6 +405,37 @@ class Colist {
 			array_push( $res, $ofile );
 		}
 		return $res;
+	}
+
+	function get_path( $file ) {
+		return trailingslashit( dirname( $file ) );
+	}
+
+	function get_dir( $file ) {
+
+		$dir = trailingslashit( dirname( $file ) );
+		$count = 0;
+		
+		// sanitize for Win32 installs
+		$dir = str_replace( '\\' ,'/', $dir ); 
+		
+		// if file is in plugins folder
+		$wp_plugin_dir = str_replace( '\\' ,'/', WP_PLUGIN_DIR ); 
+		$dir = str_replace( $wp_plugin_dir, plugins_url(), $dir, $count );
+		
+		if( $count < 1 ) {
+			// if file is in wp-content folder
+			$wp_content_dir = str_replace('\\' ,'/', WP_CONTENT_DIR ); 
+			$dir = str_replace( $wp_content_dir, content_url(), $dir, $count );
+		}
+		
+		if( $count < 1 ) {
+			// if file is in ??? folder
+			$wp_dir = str_replace( '\\' ,'/', ABSPATH ); 
+			$dir = str_replace( $wp_dir, site_url('/'), $dir );
+		}
+
+		return $dir;
 	}
 
 }

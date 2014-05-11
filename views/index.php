@@ -18,8 +18,8 @@ wp_enqueue_script( array( 'colist-admin_script' ) );
 	</div>
 
 	<div class="language hideMe">
-		<var class="files">files</var>
-		<var class="selected_files">selected files</var>
+		<var class="files"><?php echo __('files', 'colist'); ?></var>
+		<var class="selected_files"><?php echo __('selected files', 'colist'); ?></var>
 	</div>
 </div>
 
@@ -28,38 +28,38 @@ wp_enqueue_script( array( 'colist-admin_script' ) );
 	<xsl:template name="toolbar">
 		<div class="colist-toolbar">
 			<ul class="colist-group">
-				<li data-cmd="/view-refresh/" title="Refresh"><figure class="icon-rotate-left">&#160;</figure></li>
-				<li data-cmd="/toggle-list-multi/" title="Toggle image siblings"><figure class="icon-expand">&#160;</figure></li>
-				<li data-cmd="/colist-use-selected/" title="Embed on page" class="menu-use disabled"><figure class="icon-check">&#160;</figure></li>
+				<li data-cmd="/view-refresh/" title="<?php echo __('Refresh', 'colist'); ?>"><figure class="icon-rotate-left">&#160;</figure></li>
+				<li data-cmd="/toggle-list-multi/" title="<?php echo __('Toggle image siblings', 'colist'); ?>"><figure class="icon-expand">&#160;</figure></li>
+				<li data-cmd="/colist-use-selected/" title="<?php echo __('Embed on page', 'colist'); ?>" class="menu-use disabled"><figure class="icon-check">&#160;</figure></li>
 			</ul>
 			<ul class="colist-group">
-				<li data-cmd="/toggle-asc-desc/" title="Toggle Ascending"><figure class="icon-sort-amount-asc">&#160;</figure></li>
-				<li class="extended"><figure class="icon-filter" title="Order by...">&#160;</figure>
+				<li data-cmd="/toggle-asc-desc/" title="<?php echo __('Toggle Ascending', 'colist'); ?>"><figure class="icon-sort-amount-asc">&#160;</figure></li>
+				<li class="extended"><figure class="icon-filter" title="<?php echo __('Order by...', 'colist'); ?>">&#160;</figure>
 					<ul class="submenu">
-						<li data-cmd="/order-by-name/">Name</li>
-						<li data-cmd="/order-by-extension/" class="checked">Filetype</li>
-						<li data-cmd="/order-by-modified/">Date uploaded</li>
-						<li data-cmd="/order-by-size/">Size</li>
-						<li class="divider"></li>
-						<li data-cmd="/order-by-none/">None</li>
+						<li data-cmd="/order-by-name/"><?php echo __('Name', 'colist'); ?></li>
+						<li data-cmd="/order-by-extension/" class="checked"><?php echo __('Filetype', 'colist'); ?></li>
+						<li data-cmd="/order-by-modified/"><?php echo __('Date uploaded', 'colist'); ?></li>
+						<li data-cmd="/order-by-size/"><?php echo __('Size', 'colist'); ?></li>
+						<li class="divider">&#160;</li>
+						<li data-cmd="/order-by-none/"><?php echo __('None', 'colist'); ?></li>
 					</ul>
 				</li>
 			</ul>
 			<ul class="colist-group">
-				<li class="extended"><figure class="icon-gear" title="Settings">&#160;</figure>
+				<li class="extended"><figure class="icon-gear">&#160;</figure>
 					<ul class="submenu">
-						<li data-cmd="/upload-file/">Upload files</li>
-						<li class="divider"></li>
-						<li data-cmd="/download-selected/" class="menu-download disabled">Download <span class="menu_filename">&#160;</span></li>
-						<li data-cmd="/delete-selected/" class="menu-delete disabled">Delete <span class="menu_filename">&#160;</span></li>
-						<li data-cmd="/replace-selected/" class="menu-replace disabled">Replace <span class="menu_filename">&#160;</span></li>
-						<li class="divider"></li>
-						<li data-cmd="/about-colist/">About Colist</li>
+						<li data-cmd="/upload-file/"><?php echo __('Upload files', 'colist'); ?></li>
+						<li class="divider">&#160;</li>
+						<!--<li data-cmd="/download-selected/" class="menu-download disabled"><?php echo __('Download', 'colist'); ?> <span class="menu_filename">&#160;</span></li>-->
+						<li data-cmd="/delete-selected/" class="menu-delete disabled"><?php echo __('Delete', 'colist'); ?> <span class="menu_filename">&#160;</span></li>
+						<li data-cmd="/replace-selected/" class="menu-replace disabled"><?php echo __('Replace', 'colist'); ?> <span class="menu_filename">&#160;</span></li>
+						<li class="divider">&#160;</li>
+						<li data-cmd="/upload-file/"><?php echo __('Settings', 'colist'); ?></li>
 					</ul>
 				</li>
 			</ul>
 			<div class="colist_search">
-				<input type="text" name="colist-search" placeholder="Search..."/>
+				<input type="text" name="colist-search" placeholder="<?php echo __('Search...', 'colist'); ?>"/>
 			</div>
 		</div>
 	</xsl:template>
@@ -73,10 +73,10 @@ wp_enqueue_script( array( 'colist-admin_script' ) );
 					<xsl:if test="count(./file) = 0">
 						<xsl:choose>
 							<xsl:when test="@rpath = 'search_results'">
-								<div class="folder_empty">Enter search phrase</div>
+								<div class="folder_empty"><?php echo __('Enter search phrase', 'colist'); ?></div>
 							</xsl:when>
 							<xsl:otherwise>
-								<div class="folder_empty">This folder is empty</div>
+								<div class="folder_empty"><?php echo __('This folder is empty', 'colist'); ?></div>
 							</xsl:otherwise>
 						</xsl:choose>
 					</xsl:if>
@@ -166,19 +166,19 @@ wp_enqueue_script( array( 'colist-admin_script' ) );
 						</xsl:choose>
 					</div>
 					<div class="file-details">
-						<div class="detail-row file-name"><var>Name</var> <span><xsl:value-of select="@name"/></span></div>
-						<div class="detail-row file-ext"><var>Kind</var> <span><xsl:value-of select="@extension"/></span></div>
-						<div class="detail-row file-size"><var>Size</var> <span><xsl:choose>
+						<div class="detail-row file-name"><var><?php echo __('Name', 'colist'); ?></var> <span><xsl:value-of select="@name"/></span></div>
+						<div class="detail-row file-ext"><var><?php echo __('Kind', 'colist'); ?></var> <span><xsl:value-of select="@extension"/></span></div>
+						<div class="detail-row file-size"><var><?php echo __('Size', 'colist'); ?></var> <span><xsl:choose>
 							<xsl:when test="starts-with(@size, '.')"><xsl:value-of select="substring(@size, 2, string-length(@size))"/> bytes</xsl:when>
 							<xsl:otherwise><xsl:value-of select="@size"/> KB</xsl:otherwise>
 						</xsl:choose></span></div>
 						<xsl:if test="@width and @height">
-							<div class="detail-row file-dim"><var>Dimensions</var> <span><xsl:choose>
+							<div class="detail-row file-dim"><var><?php echo __('Dimensions', 'colist'); ?></var> <span><xsl:choose>
 									<xsl:when test="@width = 'null'">N/A</xsl:when>
 									<xsl:otherwise><xsl:value-of select="@width"/> x <xsl:value-of select="@height"/></xsl:otherwise>
 								</xsl:choose></span></div>
 						</xsl:if>
-						<div class="detail-row file-date"><var>Uploaded</var> <span><xsl:value-of select="substring(@modified, 1, 10)"/> <span><xsl:value-of select="substring(@modified, 11, 6)"/></span></span>
+						<div class="detail-row file-date"><var><?php echo __('Uploaded', 'colist'); ?></var> <span><xsl:value-of select="substring(@modified, 1, 10)"/> <span><xsl:value-of select="substring(@modified, 11, 6)"/></span></span>
 						</div>
 					</div>
 				</div>

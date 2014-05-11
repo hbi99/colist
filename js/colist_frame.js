@@ -14,8 +14,8 @@
 			this.el = $('.colist').on('mousedown', '.content', this.doEvent);
 			this.reel = this.el.find('> .reel');
 
-			$(document).bind('keydown', this.doEvent);
-			$(document).bind('click', this.doEvent);
+			$(win).bind('unload', this.doEvent);
+			$(document).bind('keydown click', this.doEvent);
 			// init all sub objects
 			for (var name in this) {
 				if (typeof(this[name].init) === 'function') {
@@ -55,6 +55,9 @@
 
 			switch (type) {
 				// native events
+				case 'unload':
+					win.parent.colist.doEvent('/dispose-colist/');
+					break;
 				case 'mousedown':
 					if (event.target.className.indexOf('content') > -1) {
 						// clear selection
@@ -116,6 +119,8 @@
 					}
 					break;
 				// custom events
+				case '/reset-colist/':
+					break;
 				case '/download-selected/':
 					domain = document.location.protocol +'//'+ document.location.host;
 					path = root.activeCol.attr('data-rpath') +'/'+ root.active.find('.filename').text();
@@ -553,18 +558,27 @@
 			}
 			// assemble selected file info
 			var actives = this.activeCol.find('.row.active'),
+				colpath = this.activeCol.attr('data-rpath'),
 				select_info = [],
 				il = actives.length,
 				i = 0,
+				oFile,
+				path,
+				jq = $,
 				filename,
 				el;
+			//oFile = JSON.search( this.ledger, '//*[@rpath]' );
 			for (; i<il; i++) {
-				el = $(actives[i]);
+				el = jq(actives[i]);
 				filename = el.find('.filename').text();
+				path = colpath +'/'+ filename;
+
 				select_info.push({
+					'id': el.attr('data-id'),
 					'extension': el.find('figure').attr('data-extension'),
 					'filename': filename,
-					'path': el.parents('.column').attr('data-rpath') +'/'+ filename
+					//'path': oFile[0]['@path']
+					'path': path
 				});
 			}
 			win.parent.colist.doEvent('/file-selected/', select_info);

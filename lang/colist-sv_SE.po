@@ -1,0 +1,173 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Colist v0.2\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2014-05-11 11:12:23+0000\n"
+"Last-Translator: triggerfish_root <hbi99@hotmail.com>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: CSL v1.x\n"
+"X-Poedit-Language: Swedish\n"
+"X-Poedit-Country: SWEDEN\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-KeywordsList: __;_e;__ngettext:1,2;_n:1,2;__ngettext_noop:1,2;_n_noop:1,2;_c,_nc:4c,1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;_nx_noop:4c,1,2;\n"
+"X-Poedit-Basepath: ../\n"
+"X-Poedit-Bookmarks: \n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Textdomain-Support: yes"
+
+#. translators: plugin header field 'Name'
+#: colist.php:0
+#@ colist
+msgid "Colist"
+msgstr ""
+
+#. translators: plugin header field 'PluginURI'
+#: colist.php:0
+#@ colist
+msgid "http://"
+msgstr ""
+
+#. translators: plugin header field 'Author'
+#: colist.php:0
+#@ colist
+msgid "Hakan Bilgin"
+msgstr ""
+
+#. translators: plugin header field 'Version'
+#: colist.php:0
+#@ colist
+msgid "0.2"
+msgstr ""
+
+#: colist.php:153
+#@ colist
+msgid "Recent Uploads"
+msgstr "Nyligen uppladdade"
+
+#: colist.php:160
+#@ colist
+msgid "Search Results"
+msgstr "Sök resultat"
+
+#: views/index.php:21
+#@ colist
+msgid "files"
+msgstr "filer"
+
+#: views/index.php:22
+#@ colist
+msgid "selected files"
+msgstr "valda filer"
+
+#: views/index.php:31
+#@ colist
+msgid "Refresh"
+msgstr "Ladda om"
+
+#: views/index.php:32
+#@ colist
+msgid "Toggle image siblings"
+msgstr "Växla bildlista"
+
+#: views/index.php:33
+#@ colist
+msgid "Embed on page"
+msgstr "Använd på sida"
+
+#: views/index.php:36
+#@ colist
+msgid "Toggle Ascending"
+msgstr "Växla stigande"
+
+#: views/index.php:37
+#@ colist
+msgid "Order by..."
+msgstr "Sortera..."
+
+#: views/index.php:39
+#: views/index.php:169
+#@ colist
+msgid "Name"
+msgstr "Namn"
+
+#: views/index.php:40
+#@ colist
+msgid "Filetype"
+msgstr "Filtyp"
+
+#: views/index.php:41
+#@ colist
+msgid "Date uploaded"
+msgstr "Uppladdad"
+
+#: views/index.php:42
+#: views/index.php:171
+#@ colist
+msgid "Size"
+msgstr "Storlek"
+
+#: views/index.php:44
+#@ colist
+msgid "None"
+msgstr "Ingen"
+
+#: views/index.php:51
+#@ colist
+msgid "Upload files"
+msgstr "Ladda up"
+
+#: views/index.php:53
+#@ colist
+msgid "Download"
+msgstr "Ladda ner"
+
+#: views/index.php:54
+#@ colist
+msgid "Delete"
+msgstr "Radera"
+
+#: views/index.php:55
+#@ colist
+msgid "Replace"
+msgstr "Ersätt"
+
+#: views/index.php:57
+#@ colist
+msgid "Settings"
+msgstr "Inställningar"
+
+#: views/index.php:62
+#@ colist
+msgid "Search..."
+msgstr "Sök..."
+
+#: views/index.php:76
+#@ colist
+msgid "Enter search phrase"
+msgstr "Skriv sökfras"
+
+#: views/index.php:79
+#@ colist
+msgid "This folder is empty"
+msgstr "Denna folder är tom"
+
+#: views/index.php:170
+#@ colist
+msgid "Kind"
+msgstr "Typ"
+
+#: views/index.php:176
+#@ colist
+msgid "Dimensions"
+msgstr "Dimensioner"
+
+#: views/index.php:181
+#@ colist
+msgid "Uploaded"
+msgstr "Uppladdad"
+
