@@ -43,7 +43,7 @@
 					.after('<div class="media-frame-colist">'+
 							'<div class="media-frame-title"><h1>Colist</h1></div>'+
 							'<div class="media-frame-content"><div class="media-iframe">'+
-							'<iframe src="http://local.glasberga/wp-admin/media-upload.php?chromeless=1&amp;post_id=77&amp;tab=colistframe"></iframe></div>'+
+							'<iframe src="http://local.glasberga/wp-admin/media-upload.php?chromeless=1&amp;tab=colistframe"></iframe></div>'+
 							'</div></div>');
 			};
 
@@ -114,6 +114,10 @@
 					}
 					break;
 				// custom events
+				case '/switch-to-default/':
+					$('.colist-toolbar').remove();
+					$('.media-frame-colist').remove();
+					break;
 				case '/focusin-search-field/':
 					setTimeout(function() {
 						$('.colist-toolbar input').focus();

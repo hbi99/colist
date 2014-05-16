@@ -104,12 +104,14 @@
 							root.active.parents('.column').removeClass('active');
 							break;
 						case 38: // up
-							newRow = root.active.prev('.row');
+							var isAttenuated = (root.attenuateSiblings)? ':not(.attenuated):nth(0)' : '';
+							newRow = root.active.prev('.row'+ isAttenuated);
 							if (!newRow.length) return;
 							root.active.removeClass('active');
 							break;
 						case 40: // down
-							newRow = root.active.next('.row');
+							var isAttenuated = (root.attenuateSiblings)? ':not(.attenuated):nth(0)' : '';
+							newRow = root.active.nextAll('.row'+ isAttenuated);
 							if (!newRow.length) return;
 							root.active.removeClass('active');
 							break;
@@ -265,7 +267,7 @@
 							root.progress.set(100);
 							root.active_ajax = false;
 							// store in ledger
-							oFile[0].file = data.file;
+							if (data.file) oFile[0].file = data.file;
 
 							setTimeout(func, 250);
 						}
@@ -316,7 +318,7 @@
 							root.progress.set(100);
 							root.active_ajax = false;
 							// store in ledger
-							oFile[0].file = data.file;
+							if (data.file) oFile[0].file = data.file;
 
 							setTimeout(func, 250);
 						}
@@ -327,6 +329,7 @@
 
 					xPath = '//*[@rpath="search_results"]';
 					oFile = JSON.search(root.ledger, xPath);
+					delete oFile[0]['@nomatch'];
 					func = function() {
 						root.doEvent('/render-list-of-path/', '//*[@rpath="search_results"]');
 					};
@@ -338,6 +341,7 @@
 						}
 						return func();
 					}
+					if (root.active) root.active.removeClass('active');
 					root.makeActive( $('.row[data-rpath="search_results"]'), true );
 					root.search_phrase = sPhrase;
 
@@ -364,7 +368,10 @@
 							root.progress.set(100);
 							root.active_ajax = false;
 							// store in ledger
-							oFile[0].file = data.file;
+							if (data.file) oFile[0].file = data.file;
+							else {
+								oFile[0]['@nomatch'] = 1;
+							}
 
 							setTimeout(func, 250);
 						}
@@ -505,7 +512,9 @@
 							if (!root.ledger) {
 								data.options = colist_cfg.options;
 								root.ledger = data;
-							} else oFile[0].file = data.file;
+							} else {
+								if (data.file) oFile[0].file = data.file;
+							}
 
 							setTimeout(function() {
 								root.doEvent('/render-list-of-path/', '//*[@rpath="'+ path +'"]');

@@ -215,11 +215,10 @@ class Colist {
 			if ( in_array( $item, $this->settings['ignore'] ) ) continue;
 			$item_path = str_replace( './', '', $path . $item );
 			$is_dir    = is_dir( $item_path );
-			$filesize  = filesize( $item_path );
 			$ofile = array(
 				'@rpath'     => $_REQUEST['path'] .'/'. $item,
 				'@name'      => $item,
-				'@size'      => ( $filesize < 1024 ) ? '.'. $filesize : round( $filesize / 1024),
+				'@size'      => size_format( @filesize( $item_path ) ),
 				'@extension' => $is_dir ? '_dir' : strtolower( pathinfo( $item, PATHINFO_EXTENSION ) ),
 				'@modified'  => date ( 'Y-m-d H:i:s', filemtime( $item_path ) ),
 			);
@@ -227,16 +226,17 @@ class Colist {
 				$ofile['@path'] = str_replace( $real_root, '', $item_path );
 			}
 			if ( in_array( $ofile['@extension'], $this->settings['img_types'] ) ) {
-				list( $ofile['@width'], $ofile['@height'] ) = getimagesize( $item_path );
+				list( $ofile['@width'], $ofile['@height'] ) = @getimagesize( $item_path );
 			}
 			array_push( $res, $ofile );
 		}
 		// output response
-		echo json_encode( array(
+		$ret = array(
 			'@rpath' => $_REQUEST['path'],
-			'@name'  => basename( $path ),
-			'file'   => $res
-		) );
+			'@name'  => basename( $path )
+		);
+		if ( count( $res ) > 0 ) $ret['file'] = $res;
+		echo json_encode( $ret );
 		// exit properly - ajax call
 		die( 1 );
 	}
@@ -253,10 +253,10 @@ class Colist {
 			'posts_per_page' => 21
 		) );
 
-		echo json_encode( array(
-			'@rpath' => 'recent_uploads',
-			'file'   => $this->Loop_Object( $_REQUEST['path'], $uploads )
-		) );
+		$files = $this->Loop_Object( $_REQUEST['path'], $uploads );
+		$ret = array( '@rpath' => 'recent_uploads' );
+		if ( count( $files ) > 0 ) $ret['file'] = $files;
+		echo json_encode( $ret );
 
 		// exit properly - ajax call
 		die( 1 );
@@ -276,10 +276,10 @@ class Colist {
 			'posts_per_page' => -1
 		) );
 
-		echo json_encode( array(
-			'@rpath' => 'network_shared',
-			'file'   => $this->Loop_Object( $_REQUEST['siteid'], $attachments )
-		) );
+		$files = $this->Loop_Object( $_REQUEST['siteid'], $attachments );
+		$ret = array( '@rpath' => 'network_shared' );
+		if ( count( $files ) > 0 ) $ret['file'] = $files;
+		echo json_encode( $ret );
 
 		// exit properly - ajax call
 		die( 1 );
@@ -297,6 +297,8 @@ class Colist {
 	}
 
 	function Get_Search_Results() {
+		global $wpdb;
+
 		// set content type
 		header('Content-type: application/json');
 		// check nonce
@@ -325,11 +327,12 @@ class Colist {
 		// restore blog id
 		if ( count( $blog_list ) > 1 ) switch_to_blog( $current_blog_id );
 
-		echo json_encode( array(
+		$ret = array(
 			'@rpath'  => 'search_results',
-			'@phrase' => $phrase,
-			'file'    => $res
-		) );
+			'@phrase' => $phrase
+		);
+		if ( count( $res ) > 0 ) $ret['file'] = $res;
+		echo json_encode( $ret );
 
 		// exit properly - ajax call
 		die( 1 );
@@ -383,21 +386,23 @@ class Colist {
 
 	function Loop_Object( $root_path, $records ) {
 		$res = array();
+		$real_root = realpath( $_SERVER['DOCUMENT_ROOT'] );
 		foreach( $records as $file ) {
 			$item_path = str_replace( 'http://'. $_SERVER['SERVER_NAME'], '', $file->guid );
-			$fs_path   = $_SERVER['DOCUMENT_ROOT'] . $item_path;
+			$fs_path   = get_attached_file( $file->ID );
+
 			$extension = strtolower( pathinfo( $file->guid, PATHINFO_EXTENSION ) );
 			$ofile = array(
 				'@id'        => $file->ID,
 				'@rpath'     => $root_path .'/'. $file->post_title .'.'. $extension,
 				'@path'      => $item_path,
 				'@name'      => $file->post_title .'.'. $extension,
-				'@size'      => round( filesize( $fs_path ) / 1024),
+				'@size'      => size_format( @filesize( $fs_path ) ),
 				'@modified'  => $file->post_modified,
 				'@extension' => $extension
 			);
 			if ( in_array( $ofile['@extension'], $this->settings['img_types'] ) ) {
-				list( $ofile['@width'], $ofile['@height'] ) = getimagesize( $fs_path );
+				list( $ofile['@width'], $ofile['@height'] ) = @getimagesize( $fs_path );
 				// get medium size - for faster UI
 				$medium_url = wp_get_attachment_image_src( $file->ID, 'medium' );
 				$ofile['@medium'] = $medium_url[0];

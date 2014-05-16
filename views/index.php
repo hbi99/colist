@@ -46,8 +46,10 @@ wp_enqueue_script( array( 'colist-admin_script' ) );
 				</li>
 			</ul>
 			<ul class="colist-group">
+				<!--<li data-cmd="/switch-to-default/"><figure class="icon-times">&#160;</figure></li>-->
 				<li class="extended"><figure class="icon-gear">&#160;</figure>
 					<ul class="submenu">
+						<li data-cmd="/switch-to-default/"><?php echo __('Switch to default view', 'colist'); ?></li>
 						<li data-cmd="/upload-file/"><?php echo __('Upload files', 'colist'); ?></li>
 						<li class="divider">&#160;</li>
 						<!--<li data-cmd="/download-selected/" class="menu-download disabled"><?php echo __('Download', 'colist'); ?> <span class="menu_filename">&#160;</span></li>-->
@@ -72,6 +74,9 @@ wp_enqueue_script( array( 'colist-admin_script' ) );
 				<div class="content">
 					<xsl:if test="count(./file) = 0">
 						<xsl:choose>
+							<xsl:when test="@rpath = 'search_results' and @rpath">
+								<div class="folder_empty"><?php echo __('No matches found', 'colist'); ?></div>
+							</xsl:when>
 							<xsl:when test="@rpath = 'search_results'">
 								<div class="folder_empty"><?php echo __('Enter search phrase', 'colist'); ?></div>
 							</xsl:when>
@@ -169,8 +174,8 @@ wp_enqueue_script( array( 'colist-admin_script' ) );
 						<div class="detail-row file-name"><var><?php echo __('Name', 'colist'); ?></var> <span><xsl:value-of select="@name"/></span></div>
 						<div class="detail-row file-ext"><var><?php echo __('Kind', 'colist'); ?></var> <span><xsl:value-of select="@extension"/></span></div>
 						<div class="detail-row file-size"><var><?php echo __('Size', 'colist'); ?></var> <span><xsl:choose>
-							<xsl:when test="starts-with(@size, '.')"><xsl:value-of select="substring(@size, 2, string-length(@size))"/> bytes</xsl:when>
-							<xsl:otherwise><xsl:value-of select="@size"/> KB</xsl:otherwise>
+							<xsl:when test="@size != 'false'"><xsl:value-of select="@size"/></xsl:when>
+							<xsl:otherwise>N/A</xsl:otherwise>
 						</xsl:choose></span></div>
 						<xsl:if test="@width and @height">
 							<div class="detail-row file-dim"><var><?php echo __('Dimensions', 'colist'); ?></var> <span><xsl:choose>
